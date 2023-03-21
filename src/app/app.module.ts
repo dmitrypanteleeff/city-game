@@ -1,16 +1,44 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { RouterModule, Routes } from '@angular/router';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { MenuPageComponent } from './pages/menu/menu-page.component';
+import { StartPageComponent } from './pages/start/start-page.component';
+import { OptionsPageComponent } from './pages/options/options-page.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    MenuPageComponent,
+    StartPageComponent,
+    OptionsPageComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    LeafletModule,
+    RouterModule.forChild([
+      {
+        path: '',
+        redirectTo: '/main',
+        pathMatch: 'full'
+      },
+      {
+        path: 'main',
+        component: MenuPageComponent
+      },
+      {
+        path: 'start',
+        component: StartPageComponent
+      },
+      {
+        path: 'options',
+        component: OptionsPageComponent
+      },
+    ]),
+
   ],
   providers: [],
   bootstrap: [AppComponent]
