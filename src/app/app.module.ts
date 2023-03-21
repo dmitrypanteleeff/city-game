@@ -7,6 +7,7 @@ import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import { MenuPageComponent } from './pages/menu/menu-page.component';
 import { StartPageComponent } from './pages/start/start-page.component';
 import { OptionsPageComponent } from './pages/options/options-page.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { OptionsPageComponent } from './pages/options/options-page.component';
         component: OptionsPageComponent
       },
     ]),
+    BrowserAnimationsModule,
 
   ],
   providers: [],
