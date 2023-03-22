@@ -6,6 +6,8 @@ import {
   tileLayer,
   Marker
 } from 'leaflet';
+import { Observable } from 'rxjs';
+import { CitiesService } from 'src/app/shared/cities.service';
 
 @Component({
   selector: 'app-start-page',
@@ -17,7 +19,9 @@ export class StartPageComponent implements OnInit {
   map!: Map;
   mapOptions!: MapOptions;
 
-  constructor() {
+  cities$: Observable<any> | undefined;
+
+  constructor(private citiesService: CitiesService) {
   }
 
   ngOnInit() {
@@ -39,7 +43,18 @@ export class StartPageComponent implements OnInit {
     };
   }
 
+
   onMapReady(map: Map) {
     this.map = map;
+  }
+
+  getRequest(city:string) {
+    // this.productServ.getAll().subscribe((goods) => {
+    //   this.products$ = goods;
+    //   console.log(goods)
+    // })
+
+    this.citiesService.getCity(city)
+      .subscribe((data: any) =>  console.log(data));
   }
 }

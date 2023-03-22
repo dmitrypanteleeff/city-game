@@ -5,6 +5,7 @@ import { StartPageComponent } from './start-page.component';
 import { RouterModule, Routes } from '@angular/router';
 import { MaterialModule } from 'src/app/material/material.module';
 
+
 const routes: Routes = [{ path: '', component: StartPageComponent }]
 
 @NgModule({
@@ -13,7 +14,7 @@ const routes: Routes = [{ path: '', component: StartPageComponent }]
     CommonModule,
     LeafletModule,
     RouterModule.forChild(routes),
-    MaterialModule
+    MaterialModule,
   ],
   exports: [RouterModule]
 })

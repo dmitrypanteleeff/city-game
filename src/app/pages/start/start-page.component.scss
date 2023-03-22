@@ -1,3 +1,9 @@
 #map {
   height: 600px;
 }
+
+.form-wrapper {
+  position: absolute;
+  top: 2rem;
+  z-index: 1000;
+}
