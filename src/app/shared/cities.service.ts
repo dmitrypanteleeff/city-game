@@ -15,4 +15,13 @@ export class CitiesService {
     return this._http
       .get<any>(`${environment.fbDbUrl}${city}`, { headers })
   }
+
+  getCity2(): Observable<any>  {
+    const headers = {
+      'X-RapidAPI-Key': `${environment.rapidApiKey}`,
+      'X-RapidAPI-Host': `${environment.rapidApiHost}`,
+    };
+    return this._http
+      .get<any>(`${environment.dbUrl}`, { headers })
+  }
 }

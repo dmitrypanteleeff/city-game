@@ -8,6 +8,7 @@ import {
 } from 'leaflet';
 import { Observable } from 'rxjs';
 import { CitiesService } from 'src/app/shared/cities.service';
+import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 
 @Component({
   selector: 'app-start-page',
@@ -32,12 +33,15 @@ export class StartPageComponent implements OnInit {
     this.mapOptions = {
       center: latLng(51.505, 0),
       zoom: 12,
+
       layers: [
         tileLayer(
           'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
           {
             maxZoom: 18,
-            attribution: ' data © OpenStreetMap contributors'
+            attribution: ' data © OpenStreetMap contributors',
+            // opacity: 0.7,
+            // detectRetina: true,
           })
       ],
     };
@@ -46,6 +50,12 @@ export class StartPageComponent implements OnInit {
 
   onMapReady(map: Map) {
     this.map = map;
+    const provider = new OpenStreetMapProvider();
+    const searchControl = GeoSearchControl({
+      provider: provider,
+      style:"bar"
+    });
+    map.addControl(searchControl);
   }
 
   getRequest(city:string) {
@@ -55,6 +65,9 @@ export class StartPageComponent implements OnInit {
     // })
 
     this.citiesService.getCity(city)
+      .subscribe((data: any) => console.log(data));
+
+    this.citiesService.getCity2()
       .subscribe((data: any) =>  console.log(data));
   }
 }
