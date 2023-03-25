@@ -19,10 +19,14 @@ export class StartPageComponent implements OnInit {
 
   map!: Map;
   mapOptions!: MapOptions;
+  city!: string;
+  provider: any;
+  searchControl: any;
 
   cities$: Observable<any> | undefined;
 
   constructor(private citiesService: CitiesService) {
+
   }
 
   ngOnInit() {
@@ -50,15 +54,23 @@ export class StartPageComponent implements OnInit {
 
   onMapReady(map: Map) {
     this.map = map;
-    const provider = new OpenStreetMapProvider();
-    const searchControl = GeoSearchControl({
-      provider: provider,
-      style:"bar"
-    });
-    map.addControl(searchControl);
+    this.provider = new OpenStreetMapProvider();
+    //const results = provider.search({ query: 'Moscow' });
+
+    // this.searchControl = GeoSearchControl({
+    //   provider: this.provider,
+    //   style: 'bar',
+    //   notFoundMessage: 'Sorry, that address could not be found.',
+    // });
+    // map.addControl(this.searchControl);
+
+    // console.log(444,this.searchControl)
+
+    //const results = provider.search({ query: 'Moscow' });
+    //console.log(111, results)
   }
 
-  getRequest(city:string) {
+  async getRequest(city:string) {
     // this.productServ.getAll().subscribe((goods) => {
     //   this.products$ = goods;
     //   console.log(goods)
@@ -68,6 +80,17 @@ export class StartPageComponent implements OnInit {
       .subscribe((data: any) => console.log(data));
 
     this.citiesService.getCity2()
-      .subscribe((data: any) =>  console.log(data));
+      .subscribe((data: any) => console.log(data));
+
+    this.provider = new OpenStreetMapProvider();
+    const results = await this.provider.search({ query: this.city });
+    console.log(222, results)
+    let coordinateX = results[0].x;
+    let coordinateY = results[0].y;
+    console.log(333, this.searchControl)
+    //this.mapOptions.center = latLng(30.505, 20.5)
+    let test = latLng(coordinateY, coordinateX);
+    this.map.flyTo(test)
+    //this.searchControl.onSubmit(re)
   }
 }

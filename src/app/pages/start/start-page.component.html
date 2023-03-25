@@ -5,16 +5,16 @@
 </div>
 
 <div class="form-wrapper w-100 d-flex justify-content-center">
-  <!-- <form class="form">
-    <mat-form-field class="example-full-width">
+  <form class="form">
+    <!-- <mat-form-field class="example-full-width">
       <mat-label>Enter city</mat-label>
       <input type="email" matInput placeholder="Ex. Москва">
 
 
-    </mat-form-field>
-    <input type="text" placeholder="Введите город">
-    <button mat-flat-button type="button" color="primary" (click)="getRequest('moscow')">Searh</button>
-  </form> -->
+    </mat-form-field> -->
+    <input type="text" placeholder="Введите город" name="city" [(ngModel)]="city">
+    <button mat-flat-button type="button" color="primary" (click)="getRequest('moscow')">Search</button>
+  </form>
 
   <!-- <mat-hint>Errors appear instantly!</mat-hint>
       <mat-error *ngIf="emailFormControl.hasError('email') && !emailFormControl.hasError('required')">
@@ -27,9 +27,11 @@
 
 <div class="d-flex w-100">
   <div class="d-flex w-100">
-    1
+    1 {{ city }}
   </div>
   <div class="d-flex w-100">
     2
   </div>
+
+
 </div>
