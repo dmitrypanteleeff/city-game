@@ -4,7 +4,8 @@ import {
   MapOptions,
   Map,
   tileLayer,
-  Marker
+  Marker,
+  icon
 } from 'leaflet';
 import { Observable } from 'rxjs';
 import { CitiesService } from 'src/app/shared/cities.service';
@@ -22,6 +23,7 @@ export class StartPageComponent implements OnInit {
   city!: string;
   provider: any;
   searchControl: any;
+  lastLetter!: string;
 
   cities$: Observable<any> | undefined;
 
@@ -83,14 +85,45 @@ export class StartPageComponent implements OnInit {
       .subscribe((data: any) => console.log(data));
 
     this.provider = new OpenStreetMapProvider();
+    this.city = this.city.trim();
     const results = await this.provider.search({ query: this.city });
-    console.log(222, results)
-    let coordinateX = results[0].x;
-    let coordinateY = results[0].y;
-    console.log(333, this.searchControl)
-    //this.mapOptions.center = latLng(30.505, 20.5)
-    let test = latLng(coordinateY, coordinateX);
-    this.map.flyTo(test)
-    //this.searchControl.onSubmit(re)
+    if (results.length) {
+      let coordinateY = results[0].y;
+      let coordinateX = results[0].x;
+      //this.mapOptions.center = latLng(30.505, 20.5)
+      let cityCoordinates = latLng(coordinateY, coordinateX);
+      this.map.flyTo(cityCoordinates);
+      this.addSampleMarker(coordinateY, coordinateX);
+      this.lastLetter = this.city.charAt(this.city.length - 1);
+      setTimeout(() => this.getCityFromOneLetter(), 1500);
+      //console.log('last letter is', this.lastLetter)
+      //this.searchControl.onSubmit(re)
+    }
+    else {
+      console.log(`Что-то пошло не так. ${this.city} - точно верно написали город?`)
+    }
+
   }
+
+  private addSampleMarker(y: number,x: number) {
+    const marker = new Marker([y, x])
+      .setIcon(
+        icon({
+          iconSize: [25, 41],
+          iconAnchor: [13, 41],
+          iconUrl: 'assets/marker.svg'
+        }));
+    marker.addTo(this.map).on('click',function(e) {
+      console.log(e.latlng);
+    });
+  }
+
+  getCityFromOneLetter() {
+    this.citiesService.getListCityFromLetter(this.lastLetter)
+      .subscribe((data: any) => console.log(data));
+  }
+
+  // onClick(e) {
+  //   alert(this.getLatLng());
+  // }
 }

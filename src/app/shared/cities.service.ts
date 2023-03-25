@@ -24,4 +24,13 @@ export class CitiesService {
     return this._http
       .get<any>(`${environment.dbUrl}`, { headers })
   }
+
+  getListCityFromLetter(character: string): Observable<any> {
+    const headers = {
+      'X-RapidAPI-Key': `${environment.rapidApiKey}`,
+      'X-RapidAPI-Host': `${environment.rapidApiHost}`,
+    };
+    return this._http
+      .get<any>(`${environment.urlLetterCity}${character}`, { headers })
+  }
 }

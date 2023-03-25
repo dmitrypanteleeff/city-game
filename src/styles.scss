@@ -1,6 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
 @import "../node_modules/leaflet-geosearch/dist/geosearch.css";
 
+.leaflet-control-container .leaflet-top.leaflet-left {
+  z-index: 2000;
+}
+
 #map .leaflet-attribution-flag {
   display: none!important;
 }

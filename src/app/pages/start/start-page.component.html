@@ -12,8 +12,17 @@
 
 
     </mat-form-field> -->
-    <input type="text" placeholder="Введите город" name="city" [(ngModel)]="city">
-    <button mat-flat-button type="button" color="primary" (click)="getRequest('moscow')">Search</button>
+    <!-- <input type="text" placeholder="Введите город" name="city" [(ngModel)]="city"> -->
+    <input type="text"
+      placeholder="Введите город"
+      name="city"
+      (keyup.enter)="getRequest(city)"
+      [(ngModel)]="city">
+    <button mat-flat-button
+      type="button"
+      color="primary"
+      (click)="getRequest(city)"
+      >Search</button>
   </form>
 
   <!-- <mat-hint>Errors appear instantly!</mat-hint>
