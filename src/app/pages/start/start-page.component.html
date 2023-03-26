@@ -21,8 +21,9 @@
     <button mat-flat-button
       type="button"
       color="primary"
-      (click)="getRequest(city)"
-      >Search</button>
+      (click)="getRequest(city)">
+      Search
+    </button>
   </form>
 
   <!-- <mat-hint>Errors appear instantly!</mat-hint>
@@ -33,6 +34,10 @@
         Email is <strong>required</strong>
       </mat-error> -->
 </div>
+
+<a class="mb-3" mat-raised-button color="warn" routerLink="/main">
+  Back
+</a>
 
 <div class="d-flex w-100">
   <div class="d-flex w-100">
