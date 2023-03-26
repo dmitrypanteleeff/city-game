@@ -57,26 +57,10 @@ export class StartPageComponent implements OnInit {
   onMapReady(map: Map) {
     this.map = map;
     this.provider = new OpenStreetMapProvider();
-    //const results = provider.search({ query: 'Moscow' });
-
-    // this.searchControl = GeoSearchControl({
-    //   provider: this.provider,
-    //   style: 'bar',
-    //   notFoundMessage: 'Sorry, that address could not be found.',
-    // });
-    // map.addControl(this.searchControl);
-
-    // console.log(444,this.searchControl)
-
-    //const results = provider.search({ query: 'Moscow' });
-    //console.log(111, results)
   }
 
   async getRequest(city:string) {
-    // this.productServ.getAll().subscribe((goods) => {
-    //   this.products$ = goods;
-    //   console.log(goods)
-    // })
+
 
     this.citiesService.getCity(city)
       .subscribe((data: any) => console.log(data));
