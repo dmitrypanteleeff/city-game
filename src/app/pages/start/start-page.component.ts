@@ -10,6 +10,9 @@ import {
 import { Observable } from 'rxjs';
 import { CitiesService } from 'src/app/shared/cities.service';
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
+import { Store } from '@ngxs/store';
+import { GameStateModel } from 'src/app/shared/state/game.state';
+import { START_PAGE_ENG, START_PAGE_RUS } from './start-page.config'
 
 @Component({
   selector: 'app-start-page',
@@ -25,10 +28,20 @@ export class StartPageComponent implements OnInit {
   searchControl: any;
   lastLetter!: string;
 
+  initialSnapshot: GameStateModel;
+  currentLanguage: string;
+  pageLanguage = START_PAGE_ENG;
+
   cities$: Observable<any> | undefined;
 
-  constructor(private citiesService: CitiesService) {
-
+  constructor(
+    private citiesService: CitiesService,
+    private _store: Store
+  ) {
+    this.initialSnapshot = _store.snapshot().game;
+    this.currentLanguage = this.initialSnapshot.options.currentLanguage;
+    console.log(333, this.currentLanguage)
+    this.currentLanguage === 'eng' ? this.pageLanguage = START_PAGE_ENG : this.pageLanguage = START_PAGE_RUS;
   }
 
   ngOnInit() {

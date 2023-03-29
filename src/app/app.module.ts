@@ -8,6 +8,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms'
+import { NgxsModule } from '@ngxs/store';
+import { environment } from 'src/environments/environment';
+import { GameState } from './shared/state/game.state';
 
 @NgModule({
   declarations: [
@@ -20,7 +23,10 @@ import { FormsModule } from '@angular/forms'
     BrowserAnimationsModule,
     NgbModule,
     HttpClientModule,
-    FormsModule
+    FormsModule,
+    NgxsModule.forRoot([GameState], {
+      developmentMode: !environment.production
+    })
   ],
   providers: [],
   bootstrap: [AppComponent]
