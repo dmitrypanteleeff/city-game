@@ -77,7 +77,9 @@ export class StartPageComponent implements OnInit {
     this.currentLanguage === 'eng' ? this.pageLanguage = START_PAGE_ENG : this.pageLanguage = START_PAGE_RUS;
     this.currentLanguage === 'eng' ? this.pattern = this.patternEng : this.pattern = this.patternRus;
     this.currentLanguage === 'eng' ? this.currentAlphabet = this.engAlphabet : this.currentAlphabet = this.ruAlphabet;
-    this.firstLetter = this.getFirstLetter();
+    this.lastLetter = this.getRandomLetter();
+    this.arrUsedCities = ['asdasdasda'];
+    this.arrValidCities = ['moscow', 'москва'];
 
 
   }
@@ -86,7 +88,7 @@ export class StartPageComponent implements OnInit {
     this.initializeMapOptions();
   }
 
-  getFirstLetter(): string {
+  getRandomLetter(): string {
     let lengthAlphabet = this.currentAlphabet.length - 1;
     let randomLetter = this.currentAlphabet[Math.floor(Math.random() * lengthAlphabet)];
     return randomLetter;
@@ -133,14 +135,14 @@ export class StartPageComponent implements OnInit {
     this.city = this.city.trim();
 
     // Здесь проверяем - можно ли исользовать этот город
-    if (this.city[0] === this.firstLetter) {
+    if (this.city[0].toLowerCase() === this.lastLetter) {
 
       // Здесь проверяем - использовался ли данный город ранее
       if (this.checkEnteredCity(this.city.toLowerCase())) {
         alert('Кажется, название этого города уже было. Давайте попробуем другой')
       }
       else {
-        // Если нет - то делаем запрос, если использовался
+        // Если нет - то делаем запрос
         this.provider = new OpenStreetMapProvider();
 
         const results = await this.provider.search({ query: this.city });
@@ -153,6 +155,7 @@ export class StartPageComponent implements OnInit {
           this.addSampleMarker(coordinateY, coordinateX);
           this.lastLetter = this.city.charAt(this.city.length - 1);
 
+          console.log('this.arrValidCities', this.arrValidCities)
 
 
           timer(1500)
@@ -173,8 +176,9 @@ export class StartPageComponent implements OnInit {
               //map((str) => str.filter(item => item.split('') === this.lastLetter)),
               map((str) => {
                 let filteredCities = str.filter(item => item[0].toLowerCase() === this.lastLetter);
+                this.arrValidCities.push(...filteredCities);
                 return filteredCities;
-              })
+              }),
             )
             .subscribe((data) => console.log('timer', data))
 
@@ -190,6 +194,7 @@ export class StartPageComponent implements OnInit {
       }
     }
     else {
+      console.log('буква из города',this.city[0])
       alert('Вы ввели город на неверную букву. Попробуйте ещё раз')
     }
   }
