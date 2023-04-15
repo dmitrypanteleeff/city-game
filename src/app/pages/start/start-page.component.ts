@@ -154,9 +154,10 @@ export class StartPageComponent implements OnInit {
           this.map.flyTo(cityCoordinates);
           this.addSampleMarker(coordinateY, coordinateX);
           this.lastLetter = this.city.charAt(this.city.length - 1);
+          this.arrUsedCities.push(this.city.toLowerCase());
 
           console.log('this.arrValidCities', this.arrValidCities)
-
+          // Найти город в заготовленном массиве, ели города нет, то сделать запрос
 
           timer(1500)
             .pipe(
@@ -177,6 +178,12 @@ export class StartPageComponent implements OnInit {
               map((str) => {
                 let filteredCities = str.filter(item => item[0].toLowerCase() === this.lastLetter);
                 this.arrValidCities.push(...filteredCities);
+
+                this.arrValidCities = this.arrValidCities.filter((item, index) => { // Убираем повторяющиеся значения
+                  return this.arrValidCities.indexOf(item) !== index
+                });
+
+                this.arrValidCities = this.arrValidCities.map(item => item.toLowerCase());
                 return filteredCities;
               }),
             )
