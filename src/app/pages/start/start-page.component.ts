@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import {
   latLng,
   MapOptions,
@@ -22,6 +22,8 @@ import { ListCityModel } from 'src/app/shared/types/listcities.interface';
   styleUrls: ['./start-page.component.scss']
 })
 export class StartPageComponent implements OnInit {
+
+  @ViewChild('inputCity') inputCity: any;
 
   map!: Map;
   mapOptions!: MapOptions;
@@ -52,14 +54,17 @@ export class StartPageComponent implements OnInit {
     'х', 'ц', 'ч', 'ш',
     'щ', 'э', 'ю', 'я'
   ];
+  // engAlphabet: string[] = [
+  //   'a', 'b', 'c', 'd',
+  //   'e', 'f', 'g', 'h',
+  //   'i', 'j', 'k', 'l',
+  //   'm', 'n', 'o', 'p',
+  //   'q', 'r', 's', 't',
+  //   'u', 'v', 'w', 'x',
+  //   'y', 'z'
+  // ];
   engAlphabet: string[] = [
-    'a', 'b', 'c', 'd',
-    'e', 'f', 'g', 'h',
-    'i', 'j', 'k', 'l',
-    'm', 'n', 'o', 'p',
-    'q', 'r', 's', 't',
-    'u', 'v', 'w', 'x',
-    'y', 'z'
+    'm'
   ];
 
   firstLetter!: string;
@@ -79,7 +84,7 @@ export class StartPageComponent implements OnInit {
     this.currentLanguage === 'eng' ? this.currentAlphabet = this.engAlphabet : this.currentAlphabet = this.ruAlphabet;
     this.lastLetter = this.getRandomLetter();
     this.arrUsedCities = ['asdasdasda'];
-    this.arrValidCities = ['moscow', 'москва'];
+    this.arrValidCities = ['moscow', 'anapa', 'kolchugino','london', 'ordino', 'omsk', 'paris', 'beijing', 'москва'];
 
 
   }
@@ -123,7 +128,8 @@ export class StartPageComponent implements OnInit {
   }
 
   async getRequest(city: string) {
-    console.log('this.arrCitiesOneLetter 1', this.arrCitiesOneLetter)
+    //console.log('this.arrCitiesOneLetter 1', this.arrCitiesOneLetter)
+    console.log('city', this.city)
 
 
     this.citiesService.getCity(city)
@@ -142,6 +148,10 @@ export class StartPageComponent implements OnInit {
         alert('Кажется, название этого города уже было. Давайте попробуем другой')
       }
       else {
+        // Проверить если введённый город есть в масиве запасных городов, то удалить его оттуда
+        if (this.arrValidCities.includes(this.city.toLowerCase())) {
+          this.arrValidCities = this.arrValidCities.filter(item => item !== this.city);
+        }
         // Если нет - то делаем запрос
         this.provider = new OpenStreetMapProvider();
 
@@ -156,10 +166,28 @@ export class StartPageComponent implements OnInit {
           this.lastLetter = this.city.charAt(this.city.length - 1);
           this.arrUsedCities.push(this.city.toLowerCase());
 
-          console.log('this.arrValidCities', this.arrValidCities)
-          // Найти город в заготовленном массиве, ели города нет, то сделать запрос
 
-          timer(1500)
+          //console.log('this.arrValidCities', this.arrValidCities)
+          // Найти город в заготовленном массиве, еcли города нет, то сделать запрос
+          const matches = this.arrValidCities.filter(item => item[0] === this.lastLetter);
+          if (matches.length) {
+            console.log('matchesArr', matches);
+
+            timer(10000).subscribe(() => {
+              this.inputCity.nativeElement.value = matches[0];
+              this.city = matches[0];
+              this.arrValidCities = this.arrValidCities.filter(item => item !== matches[0]);
+              this.flyToCity(this.city);
+              //this.getRequest(matches[0]);
+              return;
+            })
+            // this.inputCity.nativeElement.value = matches[0];
+            //   this.lastLetter = this.city.charAt(this.city.length - 1);
+            //   this.getRequest(matches[0])
+
+          }
+          else {
+            timer(1500)
             .pipe(
               concatMap(()=> this.getCityFromOneLetter()),
               map((str) => {
@@ -190,6 +218,9 @@ export class StartPageComponent implements OnInit {
             .subscribe((data) => console.log('timer', data))
 
           console.log('after 1500')
+          }
+
+
           //setTimeout(() => this.getCityFromOneLetter(), 1500);
 
           //console.log('last letter is', this.lastLetter)
@@ -202,8 +233,20 @@ export class StartPageComponent implements OnInit {
     }
     else {
       console.log('буква из города',this.city[0])
-      alert('Вы ввели город на неверную букву. Попробуйте ещё раз')
+      alert(`Вы ввели город на неверную букву. Попробуйте ещё раз. ${this.lastLetter}`)
     }
+  }
+
+  async flyToCity(nameCity: string) {
+    const results = await this.provider.search({ query: nameCity });
+    let coordinateY = results[0].y;
+    let coordinateX = results[0].x;
+    let cityCoordinates = latLng(coordinateY, coordinateX);
+    this.map.flyTo(cityCoordinates);
+    this.addSampleMarker(coordinateY, coordinateX);
+    this.lastLetter = nameCity.charAt(nameCity.length - 1);
+    this.arrUsedCities.push(nameCity.toLowerCase());
+    console.log('this.arrUsedCities from flyToCity',this.arrUsedCities)
   }
 
   private addSampleMarker(y: number,x: number) {
