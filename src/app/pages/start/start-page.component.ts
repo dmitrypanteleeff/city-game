@@ -7,7 +7,7 @@ import {
   Marker,
   icon
 } from 'leaflet';
-import { Observable, timer, map, tap, concatMap, filter } from 'rxjs';
+import { Observable, timer, map, tap, concatMap, filter, retryWhen, switchMap, delay } from 'rxjs';
 import { CitiesService } from 'src/app/shared/cities.service';
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 import { Store } from '@ngxs/store';
@@ -54,6 +54,9 @@ export class StartPageComponent implements OnInit {
     'х', 'ц', 'ч', 'ш',
     'щ', 'э', 'ю', 'я'
   ];
+  // ruAlphabet: string[] = [
+  //   'в'
+  // ];
   // engAlphabet: string[] = [
   //   'a', 'b', 'c', 'd',
   //   'e', 'f', 'g', 'h',
@@ -64,7 +67,7 @@ export class StartPageComponent implements OnInit {
   //   'y', 'z'
   // ];
   engAlphabet: string[] = [
-    'm'
+    'w'
   ];
 
   firstLetter!: string;
@@ -84,7 +87,7 @@ export class StartPageComponent implements OnInit {
     this.currentLanguage === 'eng' ? this.currentAlphabet = this.engAlphabet : this.currentAlphabet = this.ruAlphabet;
     this.lastLetter = this.getRandomLetter();
     this.arrUsedCities = ['asdasdasda'];
-    this.arrValidCities = ['moscow', 'anapa', 'kolchugino','london', 'ordino', 'omsk', 'paris', 'beijing', 'москва'];
+    this.arrValidCities = ['moscow', 'anapa', 'kolchugino', 'london', 'ordino', 'seul', 'omsk', 'paris', 'beijing', 'москва'];
 
 
   }
@@ -132,11 +135,11 @@ export class StartPageComponent implements OnInit {
     console.log('city', this.city)
 
 
-    this.citiesService.getCity(city)
-      .subscribe((data: any) => console.log('запрос getCity',data));
+    // this.citiesService.getCity(city)
+    //   .subscribe((data: any) => console.log('запрос getCity',data));
 
-    this.citiesService.getCity2()
-      .subscribe((data: any) => console.log('запрос getCity2', data));
+    // this.citiesService.getCity2()
+    //   .subscribe((data: any) => console.log('запрос getCity2', data));
 
     this.city = this.city.trim();
 
@@ -156,7 +159,7 @@ export class StartPageComponent implements OnInit {
         this.provider = new OpenStreetMapProvider();
 
         const results = await this.provider.search({ query: this.city });
-        if (results.length) {
+        if (results.length && results[0].y && results[0].x) {
           let coordinateY = results[0].y;
           let coordinateX = results[0].x;
           //this.mapOptions.center = latLng(30.505, 20.5)
@@ -174,6 +177,7 @@ export class StartPageComponent implements OnInit {
             console.log('matchesArr', matches);
 
             timer(10000).subscribe(() => {
+              //console.log('timer 10000')
               this.inputCity.nativeElement.value = matches[0];
               this.city = matches[0];
               this.arrValidCities = this.arrValidCities.filter(item => item !== matches[0]);
@@ -187,44 +191,17 @@ export class StartPageComponent implements OnInit {
 
           }
           else {
-            timer(1500)
-            .pipe(
-              concatMap(()=> this.getCityFromOneLetter()),
-              map((str) => {
-                str = str.data;
-                return str;
-              }),
-              map((str: ListCityModel[]) => {
-                //const arrCities = str.map(item => item.city);
-                let arrCities = str.map(item => item.city);
-                console.log('буква ',this.lastLetter)
-
-                return arrCities;
-              }),
-              //tap((str)=> console.log(console.log('asd ',str[0])))
-              //map((str) => str.filter(item => item.split('') === this.lastLetter)),
-              map((str) => {
-                let filteredCities = str.filter(item => item[0].toLowerCase() === this.lastLetter);
-                this.arrValidCities.push(...filteredCities);
-
-                this.arrValidCities = this.arrValidCities.filter((item, index) => { // Убираем повторяющиеся значения
-                  return this.arrValidCities.indexOf(item) !== index
-                });
-
-                this.arrValidCities = this.arrValidCities.map(item => item.toLowerCase());
-                return filteredCities;
-              }),
-            )
-            .subscribe((data) => console.log('timer', data))
+            this.findCity()
+              .subscribe((data) => {
+                console.log('timer', data);
+                this.inputCity.nativeElement.value = data[0];
+                this.city = data[0];
+                this.arrValidCities = this.arrValidCities.filter(item => item !== data[0]);
+                this.flyToCity(data[0])
+              })
 
           console.log('after 1500')
           }
-
-
-          //setTimeout(() => this.getCityFromOneLetter(), 1500);
-
-          //console.log('last letter is', this.lastLetter)
-          //this.searchControl.onSubmit(re)
         }
         else {
           console.log(`Что-то пошло не так. ${this.city} - точно верно написали город?`)
@@ -246,7 +223,8 @@ export class StartPageComponent implements OnInit {
     this.addSampleMarker(coordinateY, coordinateX);
     this.lastLetter = nameCity.charAt(nameCity.length - 1);
     this.arrUsedCities.push(nameCity.toLowerCase());
-    console.log('this.arrUsedCities from flyToCity',this.arrUsedCities)
+    console.log('this.arrUsedCities from flyToCity', this.arrUsedCities);
+    console.log('this.arrValidCities from flyToCity', this.arrValidCities);
   }
 
   private addSampleMarker(y: number,x: number) {
@@ -263,9 +241,92 @@ export class StartPageComponent implements OnInit {
   }
 
   getCityFromOneLetter() {
-    this.cityListOneLetter$ = this.citiesService.getListCityFromLetter(this.lastLetter);
-    console.log('cityListOneLetter', this.cityListOneLetter$);
+    this.cityListOneLetter$ = this.citiesService.getListCityFromLetter(this.lastLetter, this.randomNumberNamePrefix());
+    console.log('делаю запрос getCityFromOneLetter')
+    //console.log('cityListOneLetter', this.cityListOneLetter$);
     return this.cityListOneLetter$;
+  }
+
+  findCity(): Observable<any> {
+    return timer(1500).pipe(
+      concatMap(()=> this.getCityFromOneLetter()),
+      map((str) => {
+        str = str.data;
+        return str;
+      }),
+      map((str: ListCityModel[]) => {
+        //const arrCities = str.map(item => item.city);
+        let arrCities = str.map(item => item.city);
+        console.log('буква ',this.lastLetter)
+
+        return arrCities;
+      }),
+      map((str: string[]) => {
+        let filteredCities = str.filter(item => item[0].toLowerCase() === this.lastLetter);
+        this.arrValidCities.push(...filteredCities);
+
+
+        this.arrValidCities = this.arrValidCities.filter((item, index) => { // Убираем повторяющиеся значения
+          return this.arrValidCities.indexOf(item) === index
+        });
+        this.arrValidCities = this.arrValidCities.map(item => item.toLowerCase());
+
+        return filteredCities;
+      }),
+      delay(10000),
+      map((arr: string[]) => {
+        if (!arr.length) {
+          console.log('нужен повторный запрос')
+          //error will be picked up by retryWhen
+          throw arr;
+        }
+        return arr;
+      }),
+      // timer(10000),
+      //map((data: string[]) => timer(10000).pipe(map(() => this.flyToCity(data[0])))
+
+
+      //map((data)=> data.timer(10000).pipe(map(data) => this.flyToCity(data[0])))
+      retryWhen(errors =>
+        errors.pipe(
+          map(() => console.log('начало retryWhen')),
+          concatMap(() => this.getCityFromOneLetter()),
+          map((str) => {
+            str = str.data;
+            return str;
+          }),
+          map((str: ListCityModel[]) => {
+            //const arrCities = str.map(item => item.city);
+            let arrCities = str.map(item => item.city);
+            console.log('буква ',this.lastLetter)
+
+            return arrCities;
+          }),
+          map((str: string[]) => {
+            let filteredCities = str.filter(item => item[0].toLowerCase() === this.lastLetter);
+            this.arrValidCities.push(...filteredCities);
+
+            this.arrValidCities = this.arrValidCities.filter((item, index) => { // Убираем повторяющиеся значения
+              return this.arrValidCities.indexOf(item) === index
+            });
+            this.arrValidCities = this.arrValidCities.map(item => item.toLowerCase());
+
+            return filteredCities;
+          }),
+          //log error message
+          //tap(val => console.log(`Value ${val} was too high!`)),
+          //restart in 6 seconds
+          //delayWhen(val => timer(val * 1000))
+        )
+      )
+      //timer(10000).pipe(map((data)=> this.flyToCity(data[0])))
+    )
+  }
+
+  randomNumberNamePrefix(): number {
+    const random = Math.floor(Math.random() * 20);
+    console.log('random', random)
+    return random;
   }
 
   // onClick(e) {

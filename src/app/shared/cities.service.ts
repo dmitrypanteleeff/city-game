@@ -32,15 +32,17 @@ export class CitiesService {
       .get<any>(`${environment.dbUrl}`, { headers })
   }
 
-  getListCityFromLetter(character: string): Observable<any> {
+  getListCityFromLetter(character: string, numPrefix: number): Observable<any> {
     const currentLanguage = this.getCurrentLanguage();
     const languageCode = currentLanguage === 'eng' ? '' : '&languageCode=ru';
     const headers = {
       'X-RapidAPI-Key': `${environment.rapidApiKey}`,
       'X-RapidAPI-Host': `${environment.rapidApiHost}`,
     };
+    let bodyRequest = `${environment.urlLetterCity}${numPrefix}${environment.urlLetterCityNamePrefix}${character}${languageCode}`;
+    console.log('bodyRequest', bodyRequest);
     return this._http
-      .get<any>(`${environment.urlLetterCity}${character}${languageCode}`, { headers })
+      .get<any>(bodyRequest, { headers })
       .pipe(map((res: any) => {
         const data = res;
         console.log('service data', data)
