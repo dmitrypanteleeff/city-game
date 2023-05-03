@@ -203,10 +203,6 @@ export class StartPageComponent implements OnInit {
               //this.getRequest(matches[0]);
               return;
             })
-            // this.inputCity.nativeElement.value = matches[0];
-            //   this.lastLetter = this.city.charAt(this.city.length - 1);
-            //   this.getRequest(matches[0])
-
           }
           else {
             this.findCity()
@@ -274,6 +270,28 @@ export class StartPageComponent implements OnInit {
   }
 
   findCity(): Observable<any> {
+    return this.searchCity().pipe(
+      map((arr: CityModel[]) => {
+        if (!arr.length) {
+          console.log('нужен повторный запрос')
+          //error will be picked up by retryWhen
+          throw arr;
+        }
+        return arr;
+      }),
+      retryWhen(errors =>
+        this.searchCity()
+      )
+    )
+  }
+
+  randomNumberNamePrefix(): number {
+    const random = Math.floor(Math.random() * 20);
+    console.log('random', random)
+    return random;
+  }
+
+  searchCity() {
     return timer(1500).pipe(
       concatMap(()=> this.getCityFromOneLetter()),
       map((str) => {
@@ -303,59 +321,8 @@ export class StartPageComponent implements OnInit {
 
         return filteredCities;
       }),
-      delay(10000),
-      map((arr: CityModel[]) => {
-        if (!arr.length) {
-          console.log('нужен повторный запрос')
-          //error will be picked up by retryWhen
-          throw arr;
-        }
-        return arr;
-      }),
-      //timer(10000),
-      //map((data: string[]) => timer(10000).pipe(map(() => this.flyToCity(data[0])))
-
-
-      //map((data)=> data.timer(10000).pipe(map(data) => this.flyToCity(data[0])))
-      retryWhen(errors =>
-        errors.pipe(
-          concatMap(()=> this.getCityFromOneLetter()),
-          map((str) => {
-            str = str.data;
-            return str;
-          }),
-          map((str: ListCityModel[]) => {
-            //const arrCities = str.map(item => item.city);
-            let arrCities = str.map(item => {
-              return { name: item.city, lat: item.latitude, long: item.longitude }
-            });
-            console.log('буква ',this.lastLetter)
-
-            return arrCities;
-          }),
-          map((str: CityModel[]) => {
-            let filteredCities = str.filter(item => item.name[0].toLowerCase() === this.lastLetter);
-            this.arrValidCities.push(...filteredCities);
-
-
-            this.arrValidCities = this.arrValidCities.filter((item, index) => { // Убираем повторяющиеся значения
-              return this.arrValidCities.indexOf(item) === index
-            });
-            this.arrValidCities = this.arrValidCities.map(item => {
-              return { name: item.name.toLowerCase(), lat: item.lat, long: item.long }
-            });
-
-            return filteredCities;
-          })
-        )
-      )
+      delay(10000)
     )
-  }
-
-  randomNumberNamePrefix(): number {
-    const random = Math.floor(Math.random() * 20);
-    console.log('random', random)
-    return random;
   }
 
   // onClick(e) {
