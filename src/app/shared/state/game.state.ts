@@ -14,7 +14,7 @@ export interface GameStateModel {
   defaults: {
     items: [],
     options: {
-      currentLanguage: 'eng',
+      currentLanguage: 'rus',
       score: 0,
       languages: ['eng', 'rus']
     }

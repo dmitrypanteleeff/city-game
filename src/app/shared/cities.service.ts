@@ -39,8 +39,7 @@ export class CitiesService {
       'X-RapidAPI-Key': `${environment.rapidApiKey}`,
       'X-RapidAPI-Host': `${environment.rapidApiHost}`,
     };
-    let bodyRequest = `${environment.urlLetterCity}${numPrefix}${environment.urlLetterCityNamePrefix}${character}${languageCode}`;
-    console.log('bodyRequest', bodyRequest);
+    let bodyRequest = `${environment.urlLetterCity}${numPrefix}${environment.urlLetterCityNamePrefix}${character}${languageCode}${environment.urlLetterCityMinPopulation}`;
     return this._http
       .get<any>(bodyRequest, { headers })
       .pipe(map((res: any) => {

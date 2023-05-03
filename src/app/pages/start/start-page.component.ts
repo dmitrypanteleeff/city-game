@@ -9,11 +9,12 @@ import {
 } from 'leaflet';
 import { Observable, timer, map, tap, concatMap, filter, retryWhen, switchMap, delay } from 'rxjs';
 import { CitiesService } from 'src/app/shared/cities.service';
-import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
+import { GeoSearchControl, OpenStreetMapProvider, EsriProvider, BingProvider } from 'leaflet-geosearch';
 import { Store } from '@ngxs/store';
 import { GameStateModel } from 'src/app/shared/state/game.state';
 import { START_PAGE_ENG, START_PAGE_RUS } from './start-page.config';
 import { ListCityModel } from 'src/app/shared/types/listcities.interface';
+import { environment } from 'src/environments/environment';
 
 
 @Component({
@@ -45,18 +46,18 @@ export class StartPageComponent implements OnInit {
   readonly patternEng: RegExp = /^[?!,.a-zA-Z0-9\s]+$/;
   readonly patternRus: RegExp = /^[?!,.а-яА-ЯёЁ0-9\s]+$/;
 
-  ruAlphabet: string[] = [
-    'а', 'б', 'в', 'г',
-    'д', 'е', 'ж', 'з',
-    'и', 'к', 'л', 'м',
-    'н', 'о', 'п', 'р',
-    'с', 'т', 'у', 'ф',
-    'х', 'ц', 'ч', 'ш',
-    'щ', 'э', 'ю', 'я'
-  ];
   // ruAlphabet: string[] = [
-  //   'в'
+  //   'а', 'б', 'в', 'г',
+  //   'д', 'е', 'ж', 'з',
+  //   'и', 'к', 'л', 'м',
+  //   'н', 'о', 'п', 'р',
+  //   'с', 'т', 'у', 'ф',
+  //   'х', 'ц', 'ч', 'ш',
+  //   'щ', 'э', 'ю', 'я'
   // ];
+  ruAlphabet: string[] = [
+    'к'
+  ];
   // engAlphabet: string[] = [
   //   'a', 'b', 'c', 'd',
   //   'e', 'f', 'g', 'h',
@@ -127,7 +128,12 @@ export class StartPageComponent implements OnInit {
 
   onMapReady(map: Map) {
     this.map = map;
-    this.provider = new OpenStreetMapProvider();
+    const provider = new BingProvider({
+      params: {
+        key: environment.bingApiKey,
+      },
+    });
+    this.provider = provider;
   }
 
   async getRequest(city: string) {
@@ -156,9 +162,12 @@ export class StartPageComponent implements OnInit {
           this.arrValidCities = this.arrValidCities.filter(item => item !== this.city);
         }
         // Если нет - то делаем запрос
-        this.provider = new OpenStreetMapProvider();
+        //this.provider = new OpenStreetMapProvider();
+        //this.provider = new EsriProvider();
 
         const results = await this.provider.search({ query: this.city });
+        console.log('results',results) // Вот здесь баг. Так как иногда OpenStreetMapProvider не может найти города
+
         if (results.length && results[0].y && results[0].x) {
           let coordinateY = results[0].y;
           let coordinateX = results[0].x;
@@ -192,12 +201,14 @@ export class StartPageComponent implements OnInit {
           }
           else {
             this.findCity()
-              .subscribe((data) => {
+              .subscribe((data: any[]) => {
                 console.log('timer', data);
-                this.inputCity.nativeElement.value = data[0];
-                this.city = data[0];
-                this.arrValidCities = this.arrValidCities.filter(item => item !== data[0]);
-                this.flyToCity(data[0])
+                const matches = data.filter(item => item[0].toLowerCase() === this.lastLetter);
+
+                this.inputCity.nativeElement.value = matches[0];
+                this.city = matches[0];
+                this.arrValidCities = this.arrValidCities.filter(item => item !== matches[0]);
+                this.flyToCity(matches[0])
               })
 
           console.log('after 1500')
@@ -216,6 +227,7 @@ export class StartPageComponent implements OnInit {
 
   async flyToCity(nameCity: string) {
     const results = await this.provider.search({ query: nameCity });
+    console.log(1111,results)
     let coordinateY = results[0].y;
     let coordinateX = results[0].x;
     let cityCoordinates = latLng(coordinateY, coordinateX);
@@ -223,7 +235,9 @@ export class StartPageComponent implements OnInit {
     this.addSampleMarker(coordinateY, coordinateX);
     this.lastLetter = nameCity.charAt(nameCity.length - 1);
     this.arrUsedCities.push(nameCity.toLowerCase());
+    this.arrValidCities = this.arrValidCities.filter(item => item !== nameCity.toLowerCase());
     console.log('this.arrUsedCities from flyToCity', this.arrUsedCities);
+    console.log('this.arrUsedCities nameCity', nameCity);
     console.log('this.arrValidCities from flyToCity', this.arrValidCities);
   }
 
