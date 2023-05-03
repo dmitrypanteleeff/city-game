@@ -1,3 +1,5 @@
 export interface CityModel {
-  name: string
+  name: string,
+  lat?: number,
+  long?: number
 }

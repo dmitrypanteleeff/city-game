@@ -15,6 +15,7 @@ import { GameStateModel } from 'src/app/shared/state/game.state';
 import { START_PAGE_ENG, START_PAGE_RUS } from './start-page.config';
 import { ListCityModel } from 'src/app/shared/types/listcities.interface';
 import { environment } from 'src/environments/environment';
+import { CityModel } from 'src/app/shared/types/cities.interface';
 
 
 @Component({
@@ -35,8 +36,8 @@ export class StartPageComponent implements OnInit {
   cityListOneLetter$!: Observable<any>;
 
   arrCitiesOneLetter!: any[];
-  arrUsedCities!: string[];
-  arrValidCities!: string[];
+  arrUsedCities!: CityModel[];
+  arrValidCities!: CityModel[];
 
   initialSnapshot: GameStateModel;
   currentLanguage: string;
@@ -87,10 +88,18 @@ export class StartPageComponent implements OnInit {
     this.currentLanguage === 'eng' ? this.pattern = this.patternEng : this.pattern = this.patternRus;
     this.currentLanguage === 'eng' ? this.currentAlphabet = this.engAlphabet : this.currentAlphabet = this.ruAlphabet;
     this.lastLetter = this.getRandomLetter();
-    this.arrUsedCities = ['asdasdasda'];
-    this.arrValidCities = ['moscow', 'anapa', 'kolchugino', 'london', 'ordino', 'seul', 'omsk', 'paris', 'beijing', 'москва'];
-
-
+    this.arrUsedCities = [{ name: 'asdasdasd', lat: 0, long: 1 }];
+    this.arrValidCities = [
+      { name: 'moscow', lat: 55.755833333, long: 37.617777777 },
+      { name: 'anapa', lat: 44.894444444, long: 37.316666666 },
+      { name: 'kolchugino', lat: 56.299876, long: 39.370994 },
+      { name: 'london', lat: 51.507222222, long: 0.1275 },
+      { name: 'seoul', lat: 37.56, long: 126.99 },
+      { name: 'omsk', lat: 54.966666666, long: 73.383333333 },
+      { name: 'paris', lat: 48.864716, long: 2.349014 },
+      { name: 'beijing', lat: 39.90403, long: 116.407526 },
+      { name: 'москва', lat: 55.755833333, long: 37.617777777 }
+    ]
   }
 
   ngOnInit() {
@@ -104,7 +113,7 @@ export class StartPageComponent implements OnInit {
   }
 
   checkEnteredCity(city: string): boolean {
-    return this.arrUsedCities.includes(city.toLowerCase());
+    return this.arrUsedCities.some(elem => elem.name === city.toLowerCase());
   }
 
   private initializeMapOptions() {
@@ -158,8 +167,8 @@ export class StartPageComponent implements OnInit {
       }
       else {
         // Проверить если введённый город есть в масиве запасных городов, то удалить его оттуда
-        if (this.arrValidCities.includes(this.city.toLowerCase())) {
-          this.arrValidCities = this.arrValidCities.filter(item => item !== this.city);
+        if (this.arrValidCities.some(elem => elem.name === this.city.toLowerCase())) {
+          this.arrValidCities = this.arrValidCities.filter(item => item.name !== this.city);
         }
         // Если нет - то делаем запрос
         //this.provider = new OpenStreetMapProvider();
@@ -176,21 +185,21 @@ export class StartPageComponent implements OnInit {
           this.map.flyTo(cityCoordinates);
           this.addSampleMarker(coordinateY, coordinateX);
           this.lastLetter = this.city.charAt(this.city.length - 1);
-          this.arrUsedCities.push(this.city.toLowerCase());
+          this.arrUsedCities.push({ name: this.city.toLowerCase(), lat: coordinateY, long: coordinateX });
 
 
           //console.log('this.arrValidCities', this.arrValidCities)
           // Найти город в заготовленном массиве, еcли города нет, то сделать запрос
-          const matches = this.arrValidCities.filter(item => item[0] === this.lastLetter);
+          const matches = this.arrValidCities.filter(item => item.name[0] === this.lastLetter);
           if (matches.length) {
             console.log('matchesArr', matches);
 
             timer(10000).subscribe(() => {
               //console.log('timer 10000')
-              this.inputCity.nativeElement.value = matches[0];
-              this.city = matches[0];
+              this.inputCity.nativeElement.value = matches[0].name;
+              this.city = matches[0].name;
               this.arrValidCities = this.arrValidCities.filter(item => item !== matches[0]);
-              this.flyToCity(this.city);
+              this.flyToCity(matches[0]);
               //this.getRequest(matches[0]);
               return;
             })
@@ -201,12 +210,12 @@ export class StartPageComponent implements OnInit {
           }
           else {
             this.findCity()
-              .subscribe((data: any[]) => {
+              .subscribe((data: CityModel[]) => {
                 console.log('timer', data);
-                const matches = data.filter(item => item[0].toLowerCase() === this.lastLetter);
+                const matches = data.filter(item => item.name[0].toLowerCase() === this.lastLetter);
 
                 this.inputCity.nativeElement.value = matches[0];
-                this.city = matches[0];
+                this.city = matches[0].name;
                 this.arrValidCities = this.arrValidCities.filter(item => item !== matches[0]);
                 this.flyToCity(matches[0])
               })
@@ -225,19 +234,22 @@ export class StartPageComponent implements OnInit {
     }
   }
 
-  async flyToCity(nameCity: string) {
-    const results = await this.provider.search({ query: nameCity });
+  async flyToCity(cityObj: CityModel) {
+    const results = await this.provider.search({ query: `${cityObj.lat} ${cityObj.long}` });
     console.log(1111,results)
     let coordinateY = results[0].y;
     let coordinateX = results[0].x;
     let cityCoordinates = latLng(coordinateY, coordinateX);
     this.map.flyTo(cityCoordinates);
     this.addSampleMarker(coordinateY, coordinateX);
-    this.lastLetter = nameCity.charAt(nameCity.length - 1);
-    this.arrUsedCities.push(nameCity.toLowerCase());
-    this.arrValidCities = this.arrValidCities.filter(item => item !== nameCity.toLowerCase());
+    this.lastLetter = cityObj.name.charAt(cityObj.name.length - 1);
+    this.arrUsedCities.push({ name: cityObj.name.toLowerCase(), lat: coordinateY, long: coordinateX });
+    this.arrValidCities = this.arrValidCities.filter(item => item.name !== cityObj.name.toLowerCase());
+    this.arrValidCities = this.arrValidCities.filter((item, index) => { // Убираем повторяющиеся значения
+      return this.arrValidCities.indexOf(item) === index
+    });
     console.log('this.arrUsedCities from flyToCity', this.arrUsedCities);
-    console.log('this.arrUsedCities nameCity', nameCity);
+    console.log('this.arrUsedCities cityObj', cityObj.name);
     console.log('this.arrValidCities from flyToCity', this.arrValidCities);
   }
 
@@ -270,25 +282,29 @@ export class StartPageComponent implements OnInit {
       }),
       map((str: ListCityModel[]) => {
         //const arrCities = str.map(item => item.city);
-        let arrCities = str.map(item => item.city);
+        let arrCities = str.map(item => {
+          return { name: item.city, lat: item.latitude, long: item.longitude }
+        });
         console.log('буква ',this.lastLetter)
 
         return arrCities;
       }),
-      map((str: string[]) => {
-        let filteredCities = str.filter(item => item[0].toLowerCase() === this.lastLetter);
+      map((str: CityModel[]) => {
+        let filteredCities = str.filter(item => item.name[0].toLowerCase() === this.lastLetter);
         this.arrValidCities.push(...filteredCities);
 
 
         this.arrValidCities = this.arrValidCities.filter((item, index) => { // Убираем повторяющиеся значения
           return this.arrValidCities.indexOf(item) === index
         });
-        this.arrValidCities = this.arrValidCities.map(item => item.toLowerCase());
+        this.arrValidCities = this.arrValidCities.map(item => {
+          return { name: item.name.toLowerCase(), lat: item.lat, long: item.long }
+        });
 
         return filteredCities;
       }),
       delay(10000),
-      map((arr: string[]) => {
+      map((arr: CityModel[]) => {
         if (!arr.length) {
           console.log('нужен повторный запрос')
           //error will be picked up by retryWhen
@@ -296,44 +312,43 @@ export class StartPageComponent implements OnInit {
         }
         return arr;
       }),
-      // timer(10000),
+      //timer(10000),
       //map((data: string[]) => timer(10000).pipe(map(() => this.flyToCity(data[0])))
 
 
       //map((data)=> data.timer(10000).pipe(map(data) => this.flyToCity(data[0])))
       retryWhen(errors =>
         errors.pipe(
-          map(() => console.log('начало retryWhen')),
-          concatMap(() => this.getCityFromOneLetter()),
+          concatMap(()=> this.getCityFromOneLetter()),
           map((str) => {
             str = str.data;
             return str;
           }),
           map((str: ListCityModel[]) => {
             //const arrCities = str.map(item => item.city);
-            let arrCities = str.map(item => item.city);
+            let arrCities = str.map(item => {
+              return { name: item.city, lat: item.latitude, long: item.longitude }
+            });
             console.log('буква ',this.lastLetter)
 
             return arrCities;
           }),
-          map((str: string[]) => {
-            let filteredCities = str.filter(item => item[0].toLowerCase() === this.lastLetter);
+          map((str: CityModel[]) => {
+            let filteredCities = str.filter(item => item.name[0].toLowerCase() === this.lastLetter);
             this.arrValidCities.push(...filteredCities);
+
 
             this.arrValidCities = this.arrValidCities.filter((item, index) => { // Убираем повторяющиеся значения
               return this.arrValidCities.indexOf(item) === index
             });
-            this.arrValidCities = this.arrValidCities.map(item => item.toLowerCase());
+            this.arrValidCities = this.arrValidCities.map(item => {
+              return { name: item.name.toLowerCase(), lat: item.lat, long: item.long }
+            });
 
             return filteredCities;
-          }),
-          //log error message
-          //tap(val => console.log(`Value ${val} was too high!`)),
-          //restart in 6 seconds
-          //delayWhen(val => timer(val * 1000))
+          })
         )
       )
-      //timer(10000).pipe(map((data)=> this.flyToCity(data[0])))
     )
   }
 
