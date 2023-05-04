@@ -1,6 +1,10 @@
 <div id="map"
      leaflet
      (leafletMapReady)="onMapReady($event)"
+     (leafletMapMoveStart)="handleMapMoveStart()"
+     (leafletMapMoveEnd)="handleMapMoveEnd()"
+     (leafletMapZoomStart)="handleMapZoomStart()"
+     (leafletMapZoomEnd)="handleMapZoomEnd()"
      [leafletOptions]="mapOptions">
 </div>
 

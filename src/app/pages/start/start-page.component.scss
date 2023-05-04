@@ -7,3 +7,9 @@
   top: 2rem;
   z-index: 1000;
 }
+
+.disabledBtn a {
+  pointer-events: none;
+  opacity: 0.4;
+  display: none;
+}

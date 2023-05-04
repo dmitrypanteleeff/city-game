@@ -1,12 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import {
-  latLng,
-  MapOptions,
-  Map,
-  tileLayer,
-  Marker,
-  icon
-} from 'leaflet';
+// import {
+//   latLng,
+//   MapOptions,
+//   Map,
+//   tileLayer,
+//   Marker,
+//   icon
+// } from 'leaflet';
+import * as L from 'leaflet';
 import { Observable, timer, map, tap, concatMap, filter, retryWhen, switchMap, delay } from 'rxjs';
 import { CitiesService } from 'src/app/shared/cities.service';
 import { GeoSearchControl, OpenStreetMapProvider, EsriProvider, BingProvider } from 'leaflet-geosearch';
@@ -27,8 +28,8 @@ export class StartPageComponent implements OnInit {
 
   @ViewChild('inputCity') inputCity: any;
 
-  map!: Map;
-  mapOptions!: MapOptions;
+  map!: L.Map;
+  mapOptions!: L.MapOptions;
   city!: string;
   provider: any;
   searchControl: any;
@@ -46,6 +47,8 @@ export class StartPageComponent implements OnInit {
   pattern!: RegExp;
   readonly patternEng: RegExp = /^[?!,.a-zA-Z0-9\s]+$/;
   readonly patternRus: RegExp = /^[?!,.а-яА-ЯёЁ0-9\s]+$/;
+
+  zoomEnd: boolean = false;
 
   // ruAlphabet: string[] = [
   //   'а', 'б', 'в', 'г',
@@ -118,15 +121,16 @@ export class StartPageComponent implements OnInit {
 
   private initializeMapOptions() {
     this.mapOptions = {
-      center: latLng(51.505, 0),
+      center: L.latLng(51.505, 0),
       zoom: 12,
 
       layers: [
-        tileLayer(
+        L.tileLayer(
           'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
           {
             maxZoom: 18,
             attribution: ' data © OpenStreetMap contributors',
+            //scrollWheelZoom: false,
             // opacity: 0.7,
             // detectRetina: true,
           })
@@ -135,14 +139,47 @@ export class StartPageComponent implements OnInit {
   }
 
 
-  onMapReady(map: Map) {
+  onMapReady(map: L.Map) {
     this.map = map;
+    this.map.setMaxBounds([[-90, -180], [90, 180]]);
     const provider = new BingProvider({
       params: {
         key: environment.bingApiKey,
       },
     });
+    this.map.zoomControl.remove();
     this.provider = provider;
+  }
+
+  handleMapZoomEnd(): void{
+    this.zoomEnd = true;
+    this.map.scrollWheelZoom.enable();
+    this.map.dragging.enable();
+
+    this.map.touchZoom.enable();
+    this.map.doubleClickZoom.enable();
+    this.map.boxZoom.enable();
+    console.log('onMapZoomEnd');
+  }
+  handleMapZoomStart(): void {
+    this.zoomEnd = false;
+    this.map.scrollWheelZoom.disable();
+    this.map.dragging.disable();
+
+    this.map.touchZoom.disable();
+    this.map.doubleClickZoom.disable();
+    this.map.boxZoom.disable();
+
+    let zoomWrap = this.map.zoomControl.getContainer();
+    zoomWrap?.classList.add('disabledBtn');
+    console.log(zoomWrap)
+    console.log('onMapZoomStart');
+  }
+  handleMapMoveStart(): void{
+
+  }
+  handleMapMoveEnd(): void{
+
   }
 
   async getRequest(city: string) {
@@ -181,9 +218,9 @@ export class StartPageComponent implements OnInit {
           let coordinateY = results[0].y;
           let coordinateX = results[0].x;
           //this.mapOptions.center = latLng(30.505, 20.5)
-          let cityCoordinates = latLng(coordinateY, coordinateX);
+          let cityCoordinates = L.latLng(coordinateY, coordinateX);
           this.map.flyTo(cityCoordinates);
-          this.addSampleMarker(coordinateY, coordinateX);
+          this.addSampleMarker(this.city, coordinateY, coordinateX);
           this.lastLetter = this.city.charAt(this.city.length - 1);
           this.arrUsedCities.push({ name: this.city.toLowerCase(), lat: coordinateY, long: coordinateX });
 
@@ -232,12 +269,14 @@ export class StartPageComponent implements OnInit {
 
   async flyToCity(cityObj: CityModel) {
     const results = await this.provider.search({ query: `${cityObj.lat} ${cityObj.long}` });
-    console.log(1111,results)
+    console.log(1111, results)
+    console.log(2222, cityObj.name)
+    let name = cityObj.name;
     let coordinateY = results[0].y;
     let coordinateX = results[0].x;
-    let cityCoordinates = latLng(coordinateY, coordinateX);
+    let cityCoordinates = L.latLng(coordinateY, coordinateX);
     this.map.flyTo(cityCoordinates);
-    this.addSampleMarker(coordinateY, coordinateX);
+    this.addSampleMarker(name, coordinateY, coordinateX);
     this.lastLetter = cityObj.name.charAt(cityObj.name.length - 1);
     this.arrUsedCities.push({ name: cityObj.name.toLowerCase(), lat: coordinateY, long: coordinateX });
     this.arrValidCities = this.arrValidCities.filter(item => item.name !== cityObj.name.toLowerCase());
@@ -249,17 +288,63 @@ export class StartPageComponent implements OnInit {
     console.log('this.arrValidCities from flyToCity', this.arrValidCities);
   }
 
-  private addSampleMarker(y: number,x: number) {
-    const marker = new Marker([y, x])
+  private addSampleMarker(name: string, y: number,x: number) {
+    const marker = new L.Marker([y, x])
       .setIcon(
-        icon({
+        L.icon({
           iconSize: [25, 41],
           iconAnchor: [13, 41],
           iconUrl: 'assets/marker.svg'
         }));
     marker.addTo(this.map).on('click',function(e) {
       console.log(e.latlng);
+      // let lat = e.latlng.lat;
+      // let long = e.latlng.lng;
+      // console.log(lat)
+      // let popup = L.popup().setContent("I am a standalone popup.");
+      // marker.bindPopup(popup).openPopup();
     });
+
+    let contentPopup = `
+    <div class="d-flex flex-column">
+      <div class="d-flex">
+        <div>
+          <b>${this.pageLanguage.popupName}:&nbsp;</b>
+        </div>
+        <div>
+          ${name}
+        </div>
+      </div>
+      <div class="d-flex">
+        <div>
+          <b>${this.pageLanguage.popupLat}:&nbsp;</b>
+        </div>
+        <div>
+          ${y}
+        </div>
+      </div>
+      <div class="d-flex">
+        <div>
+          <b>${this.pageLanguage.popupLong}:&nbsp;</b>
+        </div>
+        <div>
+          ${x}
+        </div>
+      </div>
+    </div>
+    `
+
+    marker.bindPopup(contentPopup);
+
+    var v3 = '<div id="v3">v3</div>';
+    //marker?.popcontent = v3;
+    const fg = L.featureGroup().addTo(this.map)
+    fg.on('click',function(e){
+      let layer = e.layer;
+      layer.bindPopup(layer.popcontent).openPopup();
+  });
+    //let popup = L.popup().setContent("I am a standalone popup.");
+    //marker.bindPopup(popup).openPopup();
   }
 
   getCityFromOneLetter() {
