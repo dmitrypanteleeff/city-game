@@ -222,6 +222,9 @@ export class StartPageComponent implements OnInit {
           this.map.flyTo(cityCoordinates);
           this.addSampleMarker(this.city, coordinateY, coordinateX);
           this.lastLetter = this.city.charAt(this.city.length - 1);
+          if (this.lastLetter === 'ь' || this.lastLetter === 'ъ' || this.lastLetter === 'ы' || this.lastLetter === "'" || this.lastLetter === "`") {
+            this.lastLetter = this.city.charAt(this.city.length - 2);
+          }
           this.arrUsedCities.push({ name: this.city.toLowerCase(), lat: coordinateY, long: coordinateX });
 
 
@@ -278,6 +281,9 @@ export class StartPageComponent implements OnInit {
     this.map.flyTo(cityCoordinates);
     this.addSampleMarker(name, coordinateY, coordinateX);
     this.lastLetter = cityObj.name.charAt(cityObj.name.length - 1);
+    if (this.lastLetter === 'ь' || this.lastLetter === 'ъ' || this.lastLetter === 'ы' || this.lastLetter === "'" || this.lastLetter === "`") {
+      this.lastLetter = cityObj.name.charAt(cityObj.name.length - 2);
+    }
     this.arrUsedCities.push({ name: cityObj.name.toLowerCase(), lat: coordinateY, long: coordinateX });
     this.arrValidCities = this.arrValidCities.filter(item => item.name !== cityObj.name.toLowerCase());
     this.arrValidCities = this.arrValidCities.filter((item, index) => { // Убираем повторяющиеся значения
@@ -306,38 +312,36 @@ export class StartPageComponent implements OnInit {
     });
 
     let contentPopup = `
-    <div class="d-flex flex-column">
-      <div class="d-flex">
-        <div>
-          <b>${this.pageLanguage.popupName}:&nbsp;</b>
+      <div class="d-flex flex-column">
+        <div class="d-flex">
+          <div>
+            <b>${this.pageLanguage.popupName}:&nbsp;</b>
+          </div>
+          <div>
+            ${name}
+          </div>
         </div>
-        <div>
-          ${name}
+        <div class="d-flex">
+          <div>
+            <b>${this.pageLanguage.popupLat}:&nbsp;</b>
+          </div>
+          <div>
+            ${y}
+          </div>
+        </div>
+        <div class="d-flex">
+          <div>
+            <b>${this.pageLanguage.popupLong}:&nbsp;</b>
+          </div>
+          <div>
+            ${x}
+          </div>
         </div>
       </div>
-      <div class="d-flex">
-        <div>
-          <b>${this.pageLanguage.popupLat}:&nbsp;</b>
-        </div>
-        <div>
-          ${y}
-        </div>
-      </div>
-      <div class="d-flex">
-        <div>
-          <b>${this.pageLanguage.popupLong}:&nbsp;</b>
-        </div>
-        <div>
-          ${x}
-        </div>
-      </div>
-    </div>
     `
 
     marker.bindPopup(contentPopup);
 
-    var v3 = '<div id="v3">v3</div>';
-    //marker?.popcontent = v3;
     const fg = L.featureGroup().addTo(this.map)
     fg.on('click',function(e){
       let layer = e.layer;
