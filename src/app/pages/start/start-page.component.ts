@@ -8,7 +8,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 //   icon
 // } from 'leaflet';
 import * as L from 'leaflet';
-import { Observable, timer, map, tap, concatMap, filter, retryWhen, switchMap, delay } from 'rxjs';
+import { Observable, timer, map, tap, concatMap, filter, retryWhen, switchMap, delay, interval, of, debounceTime, scan, from, take, merge, mapTo } from 'rxjs';
 import { CitiesService } from 'src/app/shared/cities.service';
 import { GeoSearchControl, OpenStreetMapProvider, EsriProvider, BingProvider } from 'leaflet-geosearch';
 import { Store } from '@ngxs/store';
@@ -236,8 +236,9 @@ export class StartPageComponent implements OnInit {
 
             timer(10000).subscribe(() => {
               //console.log('timer 10000')
-              this.inputCity.nativeElement.value = matches[0].name;
-              this.city = matches[0].name;
+              //this.inputCity.nativeElement.value = matches[0].name;
+              this.enteredCity(matches[0].name);
+              //this.city = matches[0].name;
               this.arrValidCities = this.arrValidCities.filter(item => item !== matches[0]);
               this.flyToCity(matches[0]);
               //this.getRequest(matches[0]);
@@ -250,8 +251,9 @@ export class StartPageComponent implements OnInit {
                 console.log('timer', data);
                 const matches = data.filter(item => item.name[0].toLowerCase() === this.lastLetter);
 
-                this.inputCity.nativeElement.value = matches[0];
-                this.city = matches[0].name;
+                //this.inputCity.nativeElement.value = matches[0];
+                this.enteredCity(matches[0].name);
+                //this.city = matches[0].name;
                 this.arrValidCities = this.arrValidCities.filter(item => item !== matches[0]);
                 this.flyToCity(matches[0])
               })
@@ -346,10 +348,34 @@ export class StartPageComponent implements OnInit {
     fg.on('click',function(e){
       let layer = e.layer;
       layer.bindPopup(layer.popcontent).openPopup();
-  });
+    });
     //let popup = L.popup().setContent("I am a standalone popup.");
     //marker.bindPopup(popup).openPopup();
   }
+
+  enteredCity(city: string) {
+    const obser = of(city);
+    let sum = '';
+    obser.pipe(
+      switchMap(() => this.outputOneLetter(city, sum)),
+    ).subscribe()
+  }
+
+  outputOneLetter(city: string, sum: string): Observable<any> {
+    let varOutputOneLetter$;
+    return varOutputOneLetter$ =
+      interval(150).pipe(
+        take(city.length),
+        map(x => {
+          if (x === 0) {
+            return sum = sum + city[x].toUpperCase();
+          }
+          return sum = sum + city[x];
+        }),
+        map(x => this.inputCity.nativeElement.value = x)
+      )
+  }
+
 
   getCityFromOneLetter() {
     this.cityListOneLetter$ = this.citiesService.getListCityFromLetter(this.lastLetter, this.randomNumberNamePrefix());
