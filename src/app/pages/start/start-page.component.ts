@@ -320,7 +320,7 @@ export class StartPageComponent implements OnInit {
             <b>${this.pageLanguage.popupName}:&nbsp;</b>
           </div>
           <div>
-            ${name}
+            ${name.split(/\s+/).map(word => word[0].toUpperCase() + word.substring(1)).join(' ')}
           </div>
         </div>
         <div class="d-flex">
