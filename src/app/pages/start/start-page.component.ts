@@ -45,8 +45,10 @@ export class StartPageComponent implements OnInit {
   currentAlphabet!: string[];
   pageLanguage = START_PAGE_ENG;
   pattern!: RegExp;
-  readonly patternEng: RegExp = /^[?!,.a-zA-Z0-9\s]+$/;
-  readonly patternRus: RegExp = /^[?!,.а-яА-ЯёЁ0-9\s]+$/;
+  // readonly patternEng: RegExp = /^[^?!,.a-zA-Z0-9\s]+$/;
+  // readonly patternRus: RegExp = /^[^?!,.а-яА-ЯёЁ0-9\s]+$/;
+  readonly patternEng: RegExp = /[^A-Za-z\`\'\ \-]/g;
+  readonly patternRus: RegExp = /[^А-Яа-я\ё\Ё\'\ \-]/g;
 
   zoomEnd: boolean = false;
 
@@ -119,24 +121,51 @@ export class StartPageComponent implements OnInit {
     return this.arrUsedCities.some(elem => elem.name === city.toLowerCase());
   }
 
+  streetMap = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: ' data © OpenStreetMap contributors 1'
+  });
+
+  hybridMap = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+    maxZoom: 18,
+    attribution: ' data © OpenStreetMap contributors 2',
+    subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+  });
+
+  vehicleMarker = L.marker([40.4168, -3.703790], {
+    icon: L.icon({
+      iconSize: [25, 41],
+      iconAnchor: [13, 41],
+      iconUrl: 'assets/marker-icon.png',
+      shadowUrl: 'assets/marker-shadow.png'
+    })
+  });
+
   private initializeMapOptions() {
     this.mapOptions = {
       center: L.latLng(51.505, 0),
       zoom: 12,
+      //layers: [this.streetMap],
 
       layers: [
-        L.tileLayer(
-          'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          {
-            maxZoom: 18,
-            attribution: ' data © OpenStreetMap contributors',
-            //scrollWheelZoom: false,
-            // opacity: 0.7,
-            // detectRetina: true,
-          })
+        this.streetMap
       ],
     };
+
+    //var layers = L.control.groupedLayers(maptiles, overlays);
   }
+
+
+
+  layersControl = {
+    baseLayers: {
+      'Cartographic map': this.streetMap,
+      'Map view': this.hybridMap
+    },
+    overlays: {
+      // 'Vehicle': this.vehicleMarker
+    }
+  };
 
 
   onMapReady(map: L.Map) {
@@ -438,6 +467,10 @@ export class StartPageComponent implements OnInit {
       }),
       delay(10000)
     )
+  }
+
+  validateCityName() {
+    this.inputCity.nativeElement.value = this.inputCity.nativeElement.value.replace(this.pattern, '');
   }
 
   // onClick(e) {

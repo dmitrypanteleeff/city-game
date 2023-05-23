@@ -5,7 +5,9 @@ export const START_PAGE_ENG: any = {
   infoForUserAboutCurrentLetter: 'Enter the city with the letter',
   popupName: 'Name',
   popupLat: 'Lat',
-  popupLong: 'Long'
+  popupLong: 'Long',
+  mapSatelite: 'Map satelite',
+  mapView: 'Map view'
 }
 
 export const START_PAGE_RUS: any = {
@@ -15,5 +17,7 @@ export const START_PAGE_RUS: any = {
   infoForUserAboutCurrentLetter: 'Введите город на букву',
   popupName: 'Название',
   popupLat: 'Широта',
-  popupLong: 'Долгота'
+  popupLong: 'Долгота',
+  mapSatelite: 'Спутник',
+  mapView: 'Схема'
 }
