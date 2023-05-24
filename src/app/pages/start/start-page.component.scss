@@ -14,17 +14,34 @@
   display: none;
 }
 
+.info__wrapper {
+  position: absolute;
+  top: .5rem;
+  left: .5rem;
+  z-index: 1000;
+  background-color: rgba($color: #fff, $alpha: .7);
+  padding: .5rem;
+  border-radius: 5px;
+  border: 3px solid rgba(34, 32, 32, .35);
+}
+
 .timer {
   width: 2.5rem;
   height: 2.5rem;
   border: .125rem solid red;
   background-color: #fff;
   border-radius: 50%;
-  position: absolute;
-  top: .5rem;
-  left: .5rem;
-  z-index: 1000;
+  &__text {
+    color: #222020;
+  }
+}
 
+.score {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: .125rem solid blue;
+  background-color: #fff;
+  border-radius: 50%;
   &__text {
     color: #222020;
   }
@@ -40,7 +57,7 @@
 
 .start {
   &__btn-menu {
-    z-index: 1100;
+    z-index: 1000;
     position: absolute;
     bottom: .5rem;
   }

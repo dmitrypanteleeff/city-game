@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms'
 import { NgxsModule } from '@ngxs/store';
 import { environment } from 'src/environments/environment';
 import { GameState } from './shared/state/game.state';
+import { GameDialogComponent } from './components/dialog/game-dialog.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { GameState } from './shared/state/game.state';
     })
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [GameDialogComponent]
 })
 export class AppModule { }

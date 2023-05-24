@@ -14,11 +14,29 @@
   </div>
 </div>
 
-<div class="d-flex align-items-center justify-content-center timer">
-  <span class="timer__text" #timerElem>
+<div class="info__wrapper">
+  <div class="timer__wrapper d-flex flex-column justify-content-center align-items-center">
+    <div class="timer__title d-flex align-items-center justify-content-center">
+      {{ pageLanguage.timerTitle }}
+    </div>
+    <div class="d-flex align-items-center justify-content-center timer">
+      <span class="timer__text" #timerElem>
 
-  </span>
+      </span>
+    </div>
+  </div>
+  <div class="score__wrapper d-flex flex-column justify-content-center align-items-center">
+    <div class="timer__title d-flex align-items-center justify-content-center">
+      {{ pageLanguage.scoreTitle }}
+    </div>
+    <div class="d-flex align-items-center justify-content-center score">
+      <span class="score__text" #scoreElem>
+
+      </span>
+    </div>
+  </div>
 </div>
+
 
 <div class="form-wrapper w-100 d-flex justify-content-center">
   <form class="form">

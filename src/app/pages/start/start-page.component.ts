@@ -44,7 +44,8 @@ import { START_PAGE_ENG, START_PAGE_RUS } from './start-page.config';
 import { ListCityModel } from 'src/app/shared/types/listcities.interface';
 import { environment } from 'src/environments/environment';
 import { CityModel } from 'src/app/shared/types/cities.interface';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { GameDialogComponent } from 'src/app/components/dialog/game-dialog.component';
 
 
 @Component({
@@ -113,6 +114,8 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   firstLetter!: string;
 
+  dialogConfig: any;
+
 
   cities$: Observable<any> | undefined;
 
@@ -146,6 +149,7 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     //this._dialog.open(`DialogContentExampleDialog`);
     this.initializeMapOptions();
+    this.initializeDialog();
 
     const timerGame$ = interval(1000)
       .pipe(
@@ -223,6 +227,13 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
     //var layers = L.control.groupedLayers(maptiles, overlays);
   }
 
+  private initializeDialog() {
+    this.dialogConfig = new MatDialogConfig();
+    this.dialogConfig.disableClose = false;
+    this.dialogConfig.autoFocus = true;
+    this.dialogConfig.hasBackdrop = true;
+  }
+
 
 
   layersControl = {
@@ -298,7 +309,14 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // Здесь проверяем - использовался ли данный город ранее
       if (this.checkEnteredCity(this.city.toLowerCase())) {
-        alert('Кажется, название этого города уже было. Давайте попробуем другой')
+        this.dialogConfig.data = {
+          id: 1,
+          title: 'Angular For Beginners',
+          description: `${this.pageLanguage.warningMessage1}`
+        };
+        this._dialog.open(GameDialogComponent, this.dialogConfig);
+
+        //alert('Кажется, название этого города уже было. Давайте попробуем другой')
       }
       else {
         // Проверить если введённый город есть в масиве запасных городов, то удалить его оттуда
@@ -372,12 +390,24 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         else {
           console.log(`Что-то пошло не так. ${this.city} - точно верно написали город?`)
+          this.dialogConfig.data = {
+            id: 1,
+            title: 'Angular For Beginners',
+            description: `${this.pageLanguage.warningMessage3} <b>${this.city.toLocaleUpperCase()}</b> ${this.pageLanguage.warningMessage4}</b>`
+          };
+          this._dialog.open(GameDialogComponent, this.dialogConfig);
         }
       }
     }
     else {
-      console.log('буква из города',this.city[0])
-      alert(`Вы ввели город на неверную букву. Попробуйте ещё раз. ${this.lastLetter}`)
+      console.log('буква из города', this.city[0])
+      this.dialogConfig.data = {
+        id: 1,
+        title: 'Angular For Beginners',
+        description: `${this.pageLanguage.warningMessage2} <b>${this.lastLetter.toLocaleUpperCase()}</b>`
+      };
+      this._dialog.open(GameDialogComponent, this.dialogConfig);
+      //alert(`Вы ввели город на неверную букву. Попробуйте ещё раз. ${this.lastLetter}`)
     }
   }
 

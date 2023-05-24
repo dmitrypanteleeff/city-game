@@ -12,6 +12,12 @@ export const START_PAGE_ENG: any = {
   emptyByComp: `Still empty`,
   columnUserTitle: 'You have entered the following cities:',
   columnCompTitle: 'Player has entered the following cities:',
+  warningMessage1: `It seems that the name of this city has already been. Let's try another one`,
+  warningMessage2: `You entered the city with the wrong letter. Try again using the letter `,
+  warningMessage3: `Something went wrong. `,
+  warningMessage4: `Check the spelling of the city name`,
+  timerTitle: 'Timer',
+  scoreTitle: 'Score'
 }
 
 export const START_PAGE_RUS: any = {
@@ -28,4 +34,10 @@ export const START_PAGE_RUS: any = {
   emptyByComp: 'Пока тут пусто. Поэтому минутка рекламы: "Продам гараж по очень хорошей цене"',
   columnUserTitle: 'Вы ввели следующие города:',
   columnCompTitle: 'Игрок ввел следующие города:',
+  warningMessage1: 'Кажется, название этого города уже было. Давайте попробуем другой',
+  warningMessage2: 'Вы ввели город на неверную букву. Попробуйте ещё раз, используя букву ',
+  warningMessage3: 'Что-то пошло не так. ',
+  warningMessage4: '- точно верно написали город?',
+  timerTitle: 'Счётчик',
+  scoreTitle: 'Очки'
 }
