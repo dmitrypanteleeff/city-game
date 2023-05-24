@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  OnDestroy,
   OnInit,
   ViewChild
 } from '@angular/core';
@@ -14,7 +15,27 @@ import {
 //   icon
 // } from 'leaflet';
 import * as L from 'leaflet';
-import { Observable, timer, map, tap, concatMap, filter, retryWhen, switchMap, delay, interval, of, debounceTime, scan, from, take, merge, mapTo } from 'rxjs';
+import {
+  Subject,
+  Observable,
+  timer,
+  map,
+  tap,
+  concatMap,
+  filter,
+  retryWhen,
+  switchMap,
+  delay,
+  interval,
+  of,
+  debounceTime,
+  scan,
+  from,
+  take,
+  merge,
+  mapTo,
+  takeUntil
+} from 'rxjs';
 import { CitiesService } from 'src/app/shared/cities.service';
 import { GeoSearchControl, OpenStreetMapProvider, EsriProvider, BingProvider } from 'leaflet-geosearch';
 import { Store } from '@ngxs/store';
@@ -30,7 +51,7 @@ import { CityModel } from 'src/app/shared/types/cities.interface';
   templateUrl: './start-page.component.html',
   styleUrls: ['./start-page.component.scss']
 })
-export class StartPageComponent implements OnInit, AfterViewInit {
+export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('inputCity') inputCity: any;
   @ViewChild('timerElem') timerElem: any;
@@ -59,6 +80,7 @@ export class StartPageComponent implements OnInit, AfterViewInit {
   readonly patternRus: RegExp = /[^А-Яа-я\ё\Ё\'\ \-]/g;
 
   zoomEnd: boolean = false;
+  destroy$: Subject<boolean> = new Subject<boolean>();
 
   // ruAlphabet: string[] = [
   //   'а', 'б', 'в', 'г',
@@ -120,10 +142,13 @@ export class StartPageComponent implements OnInit, AfterViewInit {
     this.initializeMapOptions();
 
     const timerGame$ = interval(1000)
-      .pipe(map(x => {
-        this.countdown = this.countdown - 1;
-        return this.countdown;
-      }))
+      .pipe(
+        map(() => {
+          this.countdown = this.countdown - 1;
+          return this.countdown;
+        }),
+        takeUntil(this.destroy$)
+      )
       .subscribe(x => {
         console.log(x);
         this.timerElem.nativeElement.innerText = this.countdown;
@@ -137,7 +162,11 @@ export class StartPageComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     console.log(this.timerElem);
     this.timerElem.nativeElement.innerText = this.countdown;
+  }
 
+  ngOnDestroy() {
+    this.destroy$.next(true);
+    this.destroy$.unsubscribe();
   }
 
   getRandomLetter(): string {
@@ -293,7 +322,9 @@ export class StartPageComponent implements OnInit, AfterViewInit {
           if (matches.length) {
             console.log('matchesArr', matches);
 
-            timer(10000).subscribe(() => {
+            timer(10000)
+              .pipe(takeUntil(this.destroy$))
+              .subscribe(() => {
               //console.log('timer 10000')
               //this.inputCity.nativeElement.value = matches[0].name;
               this.enteredCity(matches[0].name);
@@ -306,6 +337,7 @@ export class StartPageComponent implements OnInit, AfterViewInit {
           }
           else {
             this.findCity()
+              .pipe(takeUntil(this.destroy$))
               .subscribe((data: CityModel[]) => {
                 console.log('timer', data);
                 const matches = data.filter(item => item.name[0].toLowerCase() === this.lastLetter);
@@ -417,6 +449,7 @@ export class StartPageComponent implements OnInit, AfterViewInit {
     let sum = '';
     obser.pipe(
       switchMap(() => this.outputOneLetter(city, sum)),
+      takeUntil(this.destroy$)
     ).subscribe()
   }
 
@@ -455,7 +488,8 @@ export class StartPageComponent implements OnInit, AfterViewInit {
       }),
       retryWhen(errors =>
         this.searchCity()
-      )
+      ),
+      takeUntil(this.destroy$)
     )
   }
 
@@ -502,6 +536,8 @@ export class StartPageComponent implements OnInit, AfterViewInit {
   validateCityName() {
     this.inputCity.nativeElement.value = this.inputCity.nativeElement.value.replace(this.pattern, '');
   }
+
+
 
   // onClick(e) {
   //   alert(this.getLatLng());
