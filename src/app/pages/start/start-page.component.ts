@@ -44,6 +44,7 @@ import { START_PAGE_ENG, START_PAGE_RUS } from './start-page.config';
 import { ListCityModel } from 'src/app/shared/types/listcities.interface';
 import { environment } from 'src/environments/environment';
 import { CityModel } from 'src/app/shared/types/cities.interface';
+import { MatDialog } from '@angular/material/dialog';
 
 
 @Component({
@@ -68,6 +69,9 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
   arrCitiesOneLetter!: any[];
   arrUsedCities!: CityModel[];
   arrValidCities!: CityModel[];
+
+  arrUsedByUser: string[] = [];
+  arrUsedByComp: string[] = [];
 
   initialSnapshot: GameStateModel;
   currentLanguage: string;
@@ -114,7 +118,8 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private citiesService: CitiesService,
-    private _store: Store
+    private _store: Store,
+    private _dialog: MatDialog
   ) {
     this.initialSnapshot = _store.snapshot().game;
     this.currentLanguage = this.initialSnapshot.options.currentLanguage;
@@ -139,6 +144,7 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
+    //this._dialog.open(`DialogContentExampleDialog`);
     this.initializeMapOptions();
 
     const timerGame$ = interval(1000)
@@ -181,12 +187,16 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   streetMap = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18,
-    attribution: ' data © OpenStreetMap contributors 1'
+    attribution: ' data © OpenStreetMap contributors 1',
+    //retina: '@2x',
+    //detectRetina: true,
   });
 
   hybridMap = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
     maxZoom: 18,
     attribution: ' data © OpenStreetMap contributors 2',
+    //retina: '@2x',
+    //detectRetina: true,
     subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
   });
 
@@ -229,11 +239,12 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
   onMapReady(map: L.Map) {
     this.map = map;
     this.map.setMaxBounds([[-90, -180], [90, 180]]);
-    const provider = new BingProvider({
-      params: {
-        key: environment.bingApiKey,
-      },
-    });
+    // const provider = new BingProvider({
+    //   params: {
+    //     key: environment.bingApiKey,
+    //   },
+    // });
+    const provider = new OpenStreetMapProvider;
     this.map.zoomControl.remove();
     this.provider = provider;
   }
@@ -303,6 +314,9 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (results.length && results[0].y && results[0].x) {
           this.countdown = this.countdown + 20;
+          this.arrUsedByUser.push(this.city);
+          console.log(333333, this.arrUsedByUser);
+
           let coordinateY = results[0].y;
           let coordinateX = results[0].x;
           //this.mapOptions.center = latLng(30.505, 20.5)
@@ -328,6 +342,8 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
               //console.log('timer 10000')
               //this.inputCity.nativeElement.value = matches[0].name;
               this.enteredCity(matches[0].name);
+              this.arrUsedByComp.push(matches[0].name);
+              console.log(4444444, this.arrUsedByComp)
               //this.city = matches[0].name;
               this.arrValidCities = this.arrValidCities.filter(item => item !== matches[0]);
               this.flyToCity(matches[0]);
@@ -346,7 +362,9 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.enteredCity(matches[0].name);
                 //this.city = matches[0].name;
                 this.arrValidCities = this.arrValidCities.filter(item => item !== matches[0]);
-                this.flyToCity(matches[0])
+                this.arrUsedByComp.push(matches[0].name);
+                console.log(4444444, this.arrUsedByComp);
+                this.flyToCity(matches[0]);
               })
 
           console.log('after 1500')

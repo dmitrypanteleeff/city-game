@@ -1,5 +1,5 @@
 #map {
-  height: 600px;
+  height: 80vh;
 }
 
 .form-wrapper {
@@ -27,5 +27,21 @@
 
   &__text {
     color: #222020;
+  }
+}
+
+.cities-list {
+  &__column {
+    border: 1px solid #222020;
+    height: 5rem;
+    overflow: scroll;
+  }
+}
+
+.start {
+  &__btn-menu {
+    z-index: 1100;
+    position: absolute;
+    bottom: .5rem;
   }
 }

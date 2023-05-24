@@ -1,12 +1,17 @@
 <div id="map"
-     leaflet
-     (leafletMapReady)="onMapReady($event)"
-     (leafletMapMoveStart)="handleMapMoveStart()"
-     (leafletMapMoveEnd)="handleMapMoveEnd()"
-     (leafletMapZoomStart)="handleMapZoomStart()"
-     (leafletMapZoomEnd)="handleMapZoomEnd()"
-     [leafletOptions]="mapOptions"
-     [leafletLayersControl]="layersControl">
+  leaflet
+  (leafletMapReady)="onMapReady($event)"
+  (leafletMapMoveStart)="handleMapMoveStart()"
+  (leafletMapMoveEnd)="handleMapMoveEnd()"
+  (leafletMapZoomStart)="handleMapZoomStart()"
+  (leafletMapZoomEnd)="handleMapZoomEnd()"
+  [leafletOptions]="mapOptions"
+  [leafletLayersControl]="layersControl">
+  <div class="container position-relative h-100">
+    <a class="start__btn start__btn-menu mb-3" mat-raised-button color="warn" routerLink="/main">
+      {{ pageLanguage.btnBack }}
+    </a>
+  </div>
 </div>
 
 <div class="d-flex align-items-center justify-content-center timer">
@@ -50,32 +55,70 @@
       </mat-error> -->
 </div>
 
-<a class="mb-3" mat-raised-button color="warn" routerLink="/main">
-  {{ pageLanguage.btnBack }}
-</a>
+<div class="container">
 
-<div class="d-flex flex-column w-100">
-  <div>
-    {{ pageLanguage.infoForUserAboutCurrentLetter }} <b>{{ lastLetter.toUpperCase() }}</b>
-  </div>
-  <div class="d-flex w-100">
+
+
+  <div class="d-flex flex-column w-100">
+    <div>
+      {{ pageLanguage.infoForUserAboutCurrentLetter }} <b>{{ lastLetter.toUpperCase() }}</b>
+    </div>
     <div class="d-flex w-100">
-      1 {{ city }}
-
-
-      <!-- <div *ngIf="cityListOneLetter$ | async as products" class="dashboard">
-        <ng-container *ngFor="let product of products">
+      <div class="cities-list__column d-flex flex-column w-100">
+        <div>
+          {{ pageLanguage.columnUserTitle }}
+        </div>
+        <div>
+          <ng-container *ngIf="arrUsedByUser.length else emptyUserTempl">
+            <ng-container *ngFor="let item of arrUsedByUser; let isLast = last">
+              <div class="d-inline-block mr-1">
+                <ng-container *ngIf="arrUsedByUser.length > 1 && !isLast else lastItemTempl">
+                  <span class="d-inline-block mr-1">
+                    {{ item }},
+                  </span>
+                </ng-container>
+                <ng-template #lastItemTempl>
+                  <span class="d-inline-block mr-1">
+                    {{ item }}
+                  </span>
+                </ng-template>
+              </div>
+            </ng-container>
+          </ng-container>
+          <ng-template #emptyUserTempl>
+            <span>{{ pageLanguage.emptyByUser }}</span>
+          </ng-template>
+        </div>
+      </div>
+      <div class="cities-list__column d-flex w-100">
+        <div class="d-flex flex-column w-100">
           <div>
-            {{product}}
+            {{ pageLanguage.columnCompTitle }}
           </div>
-        </ng-container>
-      </div> -->
-    </div>
-    <div class="d-flex w-100">
-      2
+          <div>
+            <ng-container *ngIf="arrUsedByComp.length else emptyCompTempl">
+              <ng-container *ngFor="let item of arrUsedByComp; let isLast = last">
+                <div class="d-inline-block mr-1">
+                  <ng-container *ngIf="arrUsedByComp.length > 1 && !isLast else lastItemTempl">
+                    <span class="d-inline-block mr-1">
+                      {{ item }},&ensp;
+                    </span>
+                  </ng-container>
+                  <ng-template #lastItemTempl>
+                    <span class="d-inline-block mr-1">
+                      {{ item }}
+                    </span>
+                  </ng-template>
+                </div>
+              </ng-container>
+            </ng-container>
+            <ng-template #emptyCompTempl>
+              <span>{{ pageLanguage.emptyByComp }}</span>
+            </ng-template>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-
-
-
 </div>
+
