@@ -13,3 +13,19 @@
   opacity: 0.4;
   display: none;
 }
+
+.timer {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: .125rem solid red;
+  background-color: #fff;
+  border-radius: 50%;
+  position: absolute;
+  top: .5rem;
+  left: .5rem;
+  z-index: 1000;
+
+  &__text {
+    color: #222020;
+  }
+}

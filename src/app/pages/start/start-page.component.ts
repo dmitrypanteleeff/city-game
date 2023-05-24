@@ -1,4 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 // import {
 //   latLng,
 //   MapOptions,
@@ -24,9 +30,10 @@ import { CityModel } from 'src/app/shared/types/cities.interface';
   templateUrl: './start-page.component.html',
   styleUrls: ['./start-page.component.scss']
 })
-export class StartPageComponent implements OnInit {
+export class StartPageComponent implements OnInit, AfterViewInit {
 
   @ViewChild('inputCity') inputCity: any;
+  @ViewChild('timerElem') timerElem: any;
 
   map!: L.Map;
   mapOptions!: L.MapOptions;
@@ -35,6 +42,7 @@ export class StartPageComponent implements OnInit {
   searchControl: any;
   lastLetter!: string;
   cityListOneLetter$!: Observable<any>;
+  countdown!: number;
 
   arrCitiesOneLetter!: any[];
   arrUsedCities!: CityModel[];
@@ -104,11 +112,32 @@ export class StartPageComponent implements OnInit {
       { name: 'paris', lat: 48.864716, long: 2.349014 },
       { name: 'beijing', lat: 39.90403, long: 116.407526 },
       { name: 'москва', lat: 55.755833333, long: 37.617777777 }
-    ]
+    ];
+    this.countdown = 20;
   }
 
   ngOnInit() {
     this.initializeMapOptions();
+
+    const timerGame$ = interval(1000)
+      .pipe(map(x => {
+        this.countdown = this.countdown - 1;
+        return this.countdown;
+      }))
+      .subscribe(x => {
+        console.log(x);
+        this.timerElem.nativeElement.innerText = this.countdown;
+        if (x <= 0) {
+          timerGame$.unsubscribe();
+          console.log('конец игры')
+        }
+      });
+  }
+
+  ngAfterViewInit() {
+    console.log(this.timerElem);
+    this.timerElem.nativeElement.innerText = this.countdown;
+
   }
 
   getRandomLetter(): string {
@@ -244,6 +273,7 @@ export class StartPageComponent implements OnInit {
         console.log('results',results) // Вот здесь баг. Так как иногда OpenStreetMapProvider не может найти города
 
         if (results.length && results[0].y && results[0].x) {
+          this.countdown = this.countdown + 20;
           let coordinateY = results[0].y;
           let coordinateX = results[0].x;
           //this.mapOptions.center = latLng(30.505, 20.5)
@@ -251,7 +281,7 @@ export class StartPageComponent implements OnInit {
           this.map.flyTo(cityCoordinates);
           this.addSampleMarker(this.city, coordinateY, coordinateX);
           this.lastLetter = this.city.charAt(this.city.length - 1);
-          if (this.lastLetter === 'ь' || this.lastLetter === 'ъ' || this.lastLetter === 'ы' || this.lastLetter === "'" || this.lastLetter === "`") {
+          if (this.lastLetter === 'ь' || this.lastLetter === 'ъ' || this.lastLetter === 'ы' || this.lastLetter === "'" || this.lastLetter === "`" || this.lastLetter === ")") {
             this.lastLetter = this.city.charAt(this.city.length - 2);
           }
           this.arrUsedCities.push({ name: this.city.toLowerCase(), lat: coordinateY, long: coordinateX });
