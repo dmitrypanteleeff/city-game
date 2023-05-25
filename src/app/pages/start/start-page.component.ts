@@ -88,30 +88,30 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
   zoomEnd: boolean = false;
   destroy$: Subject<boolean> = new Subject<boolean>();
 
-  // ruAlphabet: string[] = [
-  //   'а', 'б', 'в', 'г',
-  //   'д', 'е', 'ж', 'з',
-  //   'и', 'к', 'л', 'м',
-  //   'н', 'о', 'п', 'р',
-  //   'с', 'т', 'у', 'ф',
-  //   'х', 'ц', 'ч', 'ш',
-  //   'щ', 'э', 'ю', 'я'
-  // ];
   ruAlphabet: string[] = [
-    'к'
+    'а', 'б', 'в', 'г',
+    'д', 'е', 'ж', 'з',
+    'и', 'к', 'л', 'м',
+    'н', 'о', 'п', 'р',
+    'с', 'т', 'у', 'ф',
+    'х', 'ц', 'ч', 'ш',
+    'щ', 'э', 'ю', 'я'
   ];
-  // engAlphabet: string[] = [
-  //   'a', 'b', 'c', 'd',
-  //   'e', 'f', 'g', 'h',
-  //   'i', 'j', 'k', 'l',
-  //   'm', 'n', 'o', 'p',
-  //   'q', 'r', 's', 't',
-  //   'u', 'v', 'w', 'x',
-  //   'y', 'z'
+  // ruAlphabet: string[] = [
+  //   'к'
   // ];
   engAlphabet: string[] = [
-    'w'
+    'a', 'b', 'c', 'd',
+    'e', 'f', 'g', 'h',
+    'i', 'j', 'k', 'l',
+    'm', 'n', 'o', 'p',
+    'q', 'r', 's', 't',
+    'u', 'v', 'w', 'x',
+    'y', 'z'
   ];
+  // engAlphabet: string[] = [
+  //   'w'
+  // ];
 
   firstLetter!: string;
 
