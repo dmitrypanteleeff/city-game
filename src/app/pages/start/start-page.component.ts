@@ -149,7 +149,7 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
       { name: 'beijing', lat: 39.90403, long: 116.407526 },
       { name: 'москва', lat: 55.755833333, long: 37.617777777 }
     ];
-    this.countdown = 7;
+    this.countdown = 20;
   }
 
   ngOnInit() {
@@ -351,7 +351,7 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
         console.log('results',results) // Вот здесь баг. Так как иногда OpenStreetMapProvider не может найти города
 
         if (results.length && results[0].y && results[0].x) {
-          this.countdown = this.countdown + 5;
+          this.countdown = this.countdown + 30;
           this.scoreElemNumber = this.scoreElemNumber + 1;
           this.scoreElem.nativeElement.innerText = this.scoreElemNumber;
 
