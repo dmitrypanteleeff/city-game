@@ -16,6 +16,8 @@ export const START_PAGE_ENG: any = {
   warningMessage2: `You entered the city with the wrong letter. Try again using the letter `,
   warningMessage3: `Something went wrong. `,
   warningMessage4: `Check the spelling of the city name`,
+  warningMessage5: `Game Over`,
+  warningMessage6: `Your number of points is`,
   timerTitle: 'Timer',
   scoreTitle: 'Score'
 }
@@ -38,6 +40,8 @@ export const START_PAGE_RUS: any = {
   warningMessage2: 'Вы ввели город на неверную букву. Попробуйте ещё раз, используя букву ',
   warningMessage3: 'Что-то пошло не так. ',
   warningMessage4: '- точно верно написали город?',
+  warningMessage5: 'Игра завершена',
+  warningMessage6: 'Ваше количество очков:',
   timerTitle: 'Счётчик',
   scoreTitle: 'Очки'
 }

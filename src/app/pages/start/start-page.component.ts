@@ -57,6 +57,7 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('inputCity') inputCity: any;
   @ViewChild('timerElem') timerElem: any;
+  @ViewChild('scoreElem') scoreElem: any;
 
   map!: L.Map;
   mapOptions!: L.MapOptions;
@@ -115,6 +116,8 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
   firstLetter!: string;
 
   dialogConfig: any;
+  scoreElemNumber: number;
+
 
 
   cities$: Observable<any> | undefined;
@@ -124,7 +127,10 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
     private _store: Store,
     private _dialog: MatDialog
   ) {
-    this.initialSnapshot = _store.snapshot().game;
+    this.initialSnapshot = this._store.snapshot().game;
+    this.scoreElemNumber = this.initialSnapshot.options.score;
+
+
     this.currentLanguage = this.initialSnapshot.options.currentLanguage;
     console.log(333, this.currentLanguage)
     this.currentLanguage === 'eng' ? this.pageLanguage = START_PAGE_ENG : this.pageLanguage = START_PAGE_RUS;
@@ -143,7 +149,7 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
       { name: 'beijing', lat: 39.90403, long: 116.407526 },
       { name: 'москва', lat: 55.755833333, long: 37.617777777 }
     ];
-    this.countdown = 20;
+    this.countdown = 7;
   }
 
   ngOnInit() {
@@ -164,6 +170,20 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
         this.timerElem.nativeElement.innerText = this.countdown;
         if (x <= 0) {
           timerGame$.unsubscribe();
+          this.dialogConfig.data = {
+            id: 1,
+            title: 'Angular For Beginners',
+            description: `
+            <div class="d-flex flex-column">
+              <div>
+                ${this.pageLanguage.warningMessage5}
+              </div>
+              <div>
+                ${this.pageLanguage.warningMessage6} <b>${this.scoreElemNumber}</b>
+              </div>
+            </div>`
+          };
+          this._dialog.open(GameDialogComponent, this.dialogConfig);
           console.log('конец игры')
         }
       });
@@ -171,6 +191,7 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     console.log(this.timerElem);
+    this.scoreElem.nativeElement.innerText = this.initialSnapshot.options.score;
     this.timerElem.nativeElement.innerText = this.countdown;
   }
 
@@ -311,7 +332,6 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
       if (this.checkEnteredCity(this.city.toLowerCase())) {
         this.dialogConfig.data = {
           id: 1,
-          title: 'Angular For Beginners',
           description: `${this.pageLanguage.warningMessage1}`
         };
         this._dialog.open(GameDialogComponent, this.dialogConfig);
@@ -331,7 +351,10 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
         console.log('results',results) // Вот здесь баг. Так как иногда OpenStreetMapProvider не может найти города
 
         if (results.length && results[0].y && results[0].x) {
-          this.countdown = this.countdown + 20;
+          this.countdown = this.countdown + 5;
+          this.scoreElemNumber = this.scoreElemNumber + 1;
+          this.scoreElem.nativeElement.innerText = this.scoreElemNumber;
+
           this.arrUsedByUser.push(this.city);
           console.log(333333, this.arrUsedByUser);
 
@@ -392,7 +415,6 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
           console.log(`Что-то пошло не так. ${this.city} - точно верно написали город?`)
           this.dialogConfig.data = {
             id: 1,
-            title: 'Angular For Beginners',
             description: `${this.pageLanguage.warningMessage3} <b>${this.city.toLocaleUpperCase()}</b> ${this.pageLanguage.warningMessage4}</b>`
           };
           this._dialog.open(GameDialogComponent, this.dialogConfig);
@@ -403,7 +425,6 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log('буква из города', this.city[0])
       this.dialogConfig.data = {
         id: 1,
-        title: 'Angular For Beginners',
         description: `${this.pageLanguage.warningMessage2} <b>${this.lastLetter.toLocaleUpperCase()}</b>`
       };
       this._dialog.open(GameDialogComponent, this.dialogConfig);

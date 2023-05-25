@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Action, State, StateContext } from '@ngxs/store';
 import { OptionsModel } from '../types/options.interface';
-import { ToggleLanguageAction } from './game.actions';
+import { ResetGameAction, ToggleLanguageAction } from './game.actions';
 import { CityModel } from '../types/cities.interface';
 
 export interface GameStateModel {
@@ -38,6 +38,26 @@ export class GameState {
         currentLanguage: name
       }
     })
+  }
+
+  @Action(ResetGameAction)
+  ResetGameAction(ctx: StateContext<GameStateModel>, action: ResetGameAction) {
+    const { name } = action;
+    if (!name) { return; }
+
+    const state = ctx.getState();
+
+    console.log(222222, name)
+
+    ctx.setState({
+      ...state,
+      options: {
+        ...state.options,
+        score: 0
+      }
+    })
+
+    console.log(state.options)
   }
 
 }

@@ -12,4 +12,4 @@ import { GameDialogComponent } from './game-dialog.component';
     CommonModule
   ]
 })
-export class DialogModule { }
+export class GameDialogModule { }
