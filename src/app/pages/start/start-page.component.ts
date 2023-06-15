@@ -15,6 +15,7 @@ import {
 //   icon
 // } from 'leaflet';
 import * as L from 'leaflet';
+import * as MapConfig from 'src/app/shared/config/map.config';
 import {
   Subject,
   Observable,
@@ -38,7 +39,7 @@ import {
 } from 'rxjs';
 import { CitiesService } from 'src/app/shared/cities.service';
 import { GeoSearchControl, OpenStreetMapProvider, EsriProvider, BingProvider } from 'leaflet-geosearch';
-import { Store } from '@ngxs/store';
+import { Select, Store } from '@ngxs/store';
 import { GameStateModel } from 'src/app/shared/state/game.state';
 import { START_PAGE_ENG, START_PAGE_RUS } from './start-page.config';
 import { ListCityModel } from 'src/app/shared/types/listcities.interface';
@@ -46,6 +47,14 @@ import { environment } from 'src/environments/environment';
 import { CityModel } from 'src/app/shared/types/cities.interface';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { GameDialogComponent } from 'src/app/components/dialog/game-dialog.component';
+import { GameSelectors } from 'src/app/shared/state/game.selectors';
+import { arrValidCities, arrUsedCities } from 'src/app/shared/config/geography.config';
+import {
+  ruAlphabet,
+  engAlphabet,
+  patternEng,
+  patternRus
+} from 'src/app/shared/config/game.config';
 
 
 @Component({
@@ -55,9 +64,12 @@ import { GameDialogComponent } from 'src/app/components/dialog/game-dialog.compo
 })
 export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @ViewChild('inputCity') inputCity: any;
-  @ViewChild('timerElem') timerElem: any;
-  @ViewChild('scoreElem') scoreElem: any;
+  @ViewChild('inputCity') inputCity!: ElementRef;
+  @ViewChild('timerElem') timerElem!: ElementRef;
+  @ViewChild('scoreElem') scoreElem!: ElementRef;
+
+  @Select(GameSelectors.currentLanguage) currentLanguagee$!: Observable<string>;
+  //get currentLanguagee
 
   map!: L.Map;
   mapOptions!: L.MapOptions;
@@ -69,49 +81,25 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
   countdown!: number;
 
   arrCitiesOneLetter!: any[];
-  arrUsedCities!: CityModel[];
-  arrValidCities!: CityModel[];
+  arrUsedCities: CityModel[] = arrUsedCities;
+  arrValidCities: CityModel[] = arrValidCities;
 
   arrUsedByUser: string[] = [];
   arrUsedByComp: string[] = [];
 
   initialSnapshot: GameStateModel;
-  currentLanguage: string;
+  currentLanguage!: string;
   currentAlphabet!: string[];
   pageLanguage = START_PAGE_ENG;
   pattern!: RegExp;
-  // readonly patternEng: RegExp = /^[^?!,.a-zA-Z0-9\s]+$/;
-  // readonly patternRus: RegExp = /^[^?!,.а-яА-ЯёЁ0-9\s]+$/;
-  readonly patternEng: RegExp = /[^A-Za-z\`\'\ \-]/g;
-  readonly patternRus: RegExp = /[^А-Яа-я\ё\Ё\'\ \-]/g;
 
   zoomEnd: boolean = false;
   destroy$: Subject<boolean> = new Subject<boolean>();
 
-  ruAlphabet: string[] = [
-    'а', 'б', 'в', 'г',
-    'д', 'е', 'ж', 'з',
-    'и', 'к', 'л', 'м',
-    'н', 'о', 'п', 'р',
-    'с', 'т', 'у', 'ф',
-    'х', 'ц', 'ч', 'ш',
-    'щ', 'э', 'ю', 'я'
-  ];
-  // ruAlphabet: string[] = [
-  //   'к'
-  // ];
-  engAlphabet: string[] = [
-    'a', 'b', 'c', 'd',
-    'e', 'f', 'g', 'h',
-    'i', 'j', 'k', 'l',
-    'm', 'n', 'o', 'p',
-    'q', 'r', 's', 't',
-    'u', 'v', 'w', 'x',
-    'y', 'z'
-  ];
-  // engAlphabet: string[] = [
-  //   'w'
-  // ];
+  readonly patternEng: RegExp = patternEng;
+  readonly patternRus: RegExp = patternRus;
+  readonly ruAlphabet: string[] = ruAlphabet;
+  readonly engAlphabet: string[] = engAlphabet;
 
   firstLetter!: string;
 
@@ -132,27 +120,16 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
     this.currentLanguage = this.initialSnapshot.options.currentLanguage;
-    console.log(333, this.currentLanguage)
+    //console.log(333, this.currentLanguage)
     this.currentLanguage === 'eng' ? this.pageLanguage = START_PAGE_ENG : this.pageLanguage = START_PAGE_RUS;
     this.currentLanguage === 'eng' ? this.pattern = this.patternEng : this.pattern = this.patternRus;
     this.currentLanguage === 'eng' ? this.currentAlphabet = this.engAlphabet : this.currentAlphabet = this.ruAlphabet;
     this.lastLetter = this.getRandomLetter();
-    this.arrUsedCities = [{ name: 'asdasdasd', lat: 0, long: 1 }];
-    this.arrValidCities = [
-      { name: 'moscow', lat: 55.755833333, long: 37.617777777 },
-      { name: 'anapa', lat: 44.894444444, long: 37.316666666 },
-      { name: 'kolchugino', lat: 56.299876, long: 39.370994 },
-      { name: 'london', lat: 51.507222222, long: 0.1275 },
-      { name: 'seoul', lat: 37.56, long: 126.99 },
-      { name: 'omsk', lat: 54.966666666, long: 73.383333333 },
-      { name: 'paris', lat: 48.864716, long: 2.349014 },
-      { name: 'beijing', lat: 39.90403, long: 116.407526 },
-      { name: 'москва', lat: 55.755833333, long: 37.617777777 }
-    ];
     this.countdown = 20;
   }
 
   ngOnInit() {
+    console.log(11111,this.arrValidCities);
     //this._dialog.open(`DialogContentExampleDialog`);
     this.initializeMapOptions();
     this.initializeDialog();
@@ -210,42 +187,14 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.arrUsedCities.some(elem => elem.name === city.toLowerCase());
   }
 
-  streetMap = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 18,
-    attribution: ' data © OpenStreetMap contributors 1',
-    //retina: '@2x',
-    //detectRetina: true,
-  });
-
-  hybridMap = L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
-    maxZoom: 18,
-    attribution: ' data © OpenStreetMap contributors 2',
-    //retina: '@2x',
-    //detectRetina: true,
-    subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-  });
-
-  vehicleMarker = L.marker([40.4168, -3.703790], {
-    icon: L.icon({
-      iconSize: [25, 41],
-      iconAnchor: [13, 41],
-      iconUrl: 'assets/marker-icon.png',
-      shadowUrl: 'assets/marker-shadow.png'
-    })
-  });
-
   private initializeMapOptions() {
     this.mapOptions = {
       center: L.latLng(51.505, 0),
       zoom: 12,
-      //layers: [this.streetMap],
-
       layers: [
-        this.streetMap
-      ],
+        MapConfig.streetMap
+      ]
     };
-
-    //var layers = L.control.groupedLayers(maptiles, overlays);
   }
 
   private initializeDialog() {
@@ -259,8 +208,8 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   layersControl = {
     baseLayers: {
-      'Cartographic map': this.streetMap,
-      'Map view': this.hybridMap
+      'Cartographic map': MapConfig.streetMap,
+      'Map view': MapConfig.hybridMap
     },
     overlays: {
       // 'Vehicle': this.vehicleMarker
@@ -605,8 +554,6 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
   validateCityName() {
     this.inputCity.nativeElement.value = this.inputCity.nativeElement.value.replace(this.pattern, '');
   }
-
-
 
   // onClick(e) {
   //   alert(this.getLatLng());

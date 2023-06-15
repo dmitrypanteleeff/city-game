@@ -140,3 +140,11 @@
   </div>
 </div>
 
+<div>
+  123
+  <ng-container *ngIf="currentLanguagee$ | async as currentLanguagee">
+    <div [innerHTML]="currentLanguagee"></div>
+  </ng-container>
+
+</div>
+
