@@ -6,14 +6,6 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-// import {
-//   latLng,
-//   MapOptions,
-//   Map,
-//   tileLayer,
-//   Marker,
-//   icon
-// } from 'leaflet';
 import * as L from 'leaflet';
 import * as MapConfig from 'src/app/shared/config/map.config';
 import {
@@ -55,6 +47,12 @@ import {
   patternEng,
   patternRus
 } from 'src/app/shared/config/game.config';
+import {
+  handleMapZoomEnd,
+  handleMapZoomStart,
+  handleMapMoveStart,
+  handleMapMoveEnd
+} from 'src/app/shared/utils/handle-map.functions'
 
 
 @Component({
@@ -69,7 +67,7 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('scoreElem') scoreElem!: ElementRef;
 
   @Select(GameSelectors.currentLanguage) currentLanguagee$!: Observable<string>;
-  //get currentLanguagee
+  @Select(GameSelectors.score) score$!: Observable<number>;
 
   map!: L.Map;
   mapOptions!: L.MapOptions;
@@ -104,11 +102,15 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
   firstLetter!: string;
 
   dialogConfig: any;
-  scoreElemNumber: number;
-
-
+  scoreElemNumber!: number;
 
   cities$: Observable<any> | undefined;
+
+  handleMapZoomStart = handleMapZoomStart;
+  handleMapZoomEnd = handleMapZoomEnd;
+  handleMapMoveStart = handleMapMoveStart;
+  handleMapMoveEnd = handleMapMoveEnd;
+
 
   constructor(
     private citiesService: CitiesService,
@@ -116,19 +118,10 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
     private _dialog: MatDialog
   ) {
     this.initialSnapshot = this._store.snapshot().game;
-    this.scoreElemNumber = this.initialSnapshot.options.score;
-
-
-    this.currentLanguage = this.initialSnapshot.options.currentLanguage;
-    //console.log(333, this.currentLanguage)
-    this.currentLanguage === 'eng' ? this.pageLanguage = START_PAGE_ENG : this.pageLanguage = START_PAGE_RUS;
-    this.currentLanguage === 'eng' ? this.pattern = this.patternEng : this.pattern = this.patternRus;
-    this.currentLanguage === 'eng' ? this.currentAlphabet = this.engAlphabet : this.currentAlphabet = this.ruAlphabet;
-    this.lastLetter = this.getRandomLetter();
-    this.countdown = 20;
   }
 
   ngOnInit() {
+    this.initializeValues();
     console.log(11111,this.arrValidCities);
     //this._dialog.open(`DialogContentExampleDialog`);
     this.initializeMapOptions();
@@ -168,7 +161,7 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     console.log(this.timerElem);
-    this.scoreElem.nativeElement.innerText = this.initialSnapshot.options.score;
+    this.scoreElem.nativeElement.innerText = this.scoreElemNumber;
     this.timerElem.nativeElement.innerText = this.countdown;
   }
 
@@ -185,6 +178,26 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   checkEnteredCity(city: string): boolean {
     return this.arrUsedCities.some(elem => elem.name === city.toLowerCase());
+  }
+
+  private initializeValues() {
+
+    this.currentLanguagee$
+      .pipe(
+        takeUntil(this.destroy$))
+      .subscribe(val => this.currentLanguage = val);
+
+    this.score$
+      .pipe(
+        takeUntil(this.destroy$))
+      .subscribe(val => this.scoreElemNumber = val);
+
+    this.currentLanguage === 'eng' ? this.pageLanguage = START_PAGE_ENG : this.pageLanguage = START_PAGE_RUS;
+    this.currentLanguage === 'eng' ? this.pattern = this.patternEng : this.pattern = this.patternRus;
+    this.currentLanguage === 'eng' ? this.currentAlphabet = this.engAlphabet : this.currentAlphabet = this.ruAlphabet;
+
+    this.lastLetter = this.getRandomLetter();
+    this.countdown = 20;
   }
 
   private initializeMapOptions() {
@@ -216,7 +229,6 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   };
 
-
   onMapReady(map: L.Map) {
     this.map = map;
     this.map.setMaxBounds([[-90, -180], [90, 180]]);
@@ -230,36 +242,6 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.provider = provider;
   }
 
-  handleMapZoomEnd(): void{
-    this.zoomEnd = true;
-    this.map.scrollWheelZoom.enable();
-    this.map.dragging.enable();
-
-    this.map.touchZoom.enable();
-    this.map.doubleClickZoom.enable();
-    this.map.boxZoom.enable();
-    console.log('onMapZoomEnd');
-  }
-  handleMapZoomStart(): void {
-    this.zoomEnd = false;
-    this.map.scrollWheelZoom.disable();
-    this.map.dragging.disable();
-
-    this.map.touchZoom.disable();
-    this.map.doubleClickZoom.disable();
-    this.map.boxZoom.disable();
-
-    let zoomWrap = this.map.zoomControl.getContainer();
-    zoomWrap?.classList.add('disabledBtn');
-    console.log(zoomWrap)
-    console.log('onMapZoomStart');
-  }
-  handleMapMoveStart(): void{
-
-  }
-  handleMapMoveEnd(): void{
-
-  }
 
   async getRequest(city: string) {
     //console.log('this.arrCitiesOneLetter 1', this.arrCitiesOneLetter)
@@ -405,6 +387,7 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log('this.arrValidCities from flyToCity', this.arrValidCities);
   }
 
+  // вынести
   private addSampleMarker(name: string, y: number,x: number) {
     const marker = new L.Marker([y, x])
       .setIcon(

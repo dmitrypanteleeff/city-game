@@ -1,10 +1,10 @@
 <div id="map"
   leaflet
   (leafletMapReady)="onMapReady($event)"
-  (leafletMapMoveStart)="handleMapMoveStart()"
-  (leafletMapMoveEnd)="handleMapMoveEnd()"
-  (leafletMapZoomStart)="handleMapZoomStart()"
-  (leafletMapZoomEnd)="handleMapZoomEnd()"
+  (leafletMapMoveStart)="handleMapMoveStart(map, zoomEnd)"
+  (leafletMapMoveEnd)="handleMapMoveEnd(map, zoomEnd)"
+  (leafletMapZoomStart)="handleMapZoomStart(map, zoomEnd)"
+  (leafletMapZoomEnd)="handleMapZoomEnd(map, zoomEnd)"
   [leafletOptions]="mapOptions"
   [leafletLayersControl]="layersControl">
   <div class="container position-relative h-100">
