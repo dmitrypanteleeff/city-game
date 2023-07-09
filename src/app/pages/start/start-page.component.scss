@@ -22,7 +22,8 @@
 .info__wrapper {
   width: 3.75rem;
   position: absolute;
-  top: 74%;
+  top: auto;
+  bottom: 2rem;
   right: .5rem;
   left: auto;
   z-index: 1000;
@@ -33,6 +34,7 @@
   @media (min-width:575px) {
     top: .5rem;
     left: .5rem;
+    bottom: auto;
   }
 }
 
@@ -69,8 +71,7 @@
 .start {
   &__btn-menu {
     z-index: 1000;
-    position: absolute;
-    top: 90%;
+    width: 6rem;
   }
 }
 
