@@ -1,3 +1,4 @@
+
 <div id="map"
   leaflet
   (leafletMapReady)="onMapReady($event)"
@@ -12,34 +13,56 @@
       {{ pageLanguage.btnBack }}
     </a>
   </div>
-</div>
 
-<div class="info__wrapper">
-  <div class="timer__wrapper d-flex flex-column justify-content-center align-items-center">
-    <div class="timer__title d-flex align-items-center justify-content-center">
-      {{ pageLanguage.timerTitle }}
+  <div class="info__wrapper">
+    <div class="timer__wrapper d-flex flex-column justify-content-center align-items-center">
+      <div class="timer__title d-flex align-items-center justify-content-center">
+        {{ pageLanguage.timerTitle }}
+      </div>
+      <div class="d-flex align-items-center justify-content-center timer">
+        <span class="timer__text" #timerElem>
+
+        </span>
+      </div>
     </div>
-    <div class="d-flex align-items-center justify-content-center timer">
-      <span class="timer__text" #timerElem>
+    <div class="score__wrapper d-flex flex-column justify-content-center align-items-center">
+      <div class="timer__title d-flex align-items-center justify-content-center">
+        {{ pageLanguage.scoreTitle }}
+      </div>
+      <div class="d-flex align-items-center justify-content-center score">
+        <span class="score__text" #scoreElem>
 
-      </span>
+        </span>
+      </div>
     </div>
   </div>
-  <div class="score__wrapper d-flex flex-column justify-content-center align-items-center">
-    <div class="timer__title d-flex align-items-center justify-content-center">
-      {{ pageLanguage.scoreTitle }}
-    </div>
-    <div class="d-flex align-items-center justify-content-center score">
-      <span class="score__text" #scoreElem>
-
-      </span>
-    </div>
-  </div>
 </div>
 
 
-<div class="form-wrapper w-100 d-flex justify-content-center">
+
+
+<div class="form-wrapper w-100 d-flex justify-content-start justify-content-sm-center ml-1">
   <form class="form">
+    <div class="d-flex mb-5">
+      <!-- (inputValueChange)="city=$event" -->
+      <!-- (inputValueChange)="putCity($event)" -->
+      <app-city-input
+        #inputCity
+        name="city"
+        [classInputWrapper]="'city-input-wrapper'"
+        (inputValueChange)="city=$event"
+        (keyup.enter)="getRequest(city)"
+        [placeholder]="pageLanguage.inputPlaceHolder"
+        [value]="city">
+      </app-city-input>
+      <button mat-flat-button
+        type="button"
+        color="primary"
+        (click)="getRequest(city)">
+        {{ pageLanguage.btnSearch }}
+      </button>
+    </div>
+
     <!-- <mat-form-field class="example-full-width">
       <mat-label>Enter city</mat-label>
       <input type="email" matInput placeholder="Ex. Москва">
@@ -47,7 +70,8 @@
 
     </mat-form-field> -->
     <!-- <input type="text" placeholder="Введите город" name="city" [(ngModel)]="city"> -->
-    <input type="text"
+
+    <!-- <input type="text"
 
       name="city"
       #inputCity
@@ -55,13 +79,13 @@
       (keyup.enter)="getRequest(city)"
       [placeholder]="pageLanguage.inputPlaceHolder"
       [pattern]="pattern"
-      [(ngModel)]="city">
-    <button mat-flat-button
+      [(ngModel)]="city"> -->
+    <!-- <button mat-flat-button
       type="button"
       color="primary"
       (click)="getRequest(city)">
       {{ pageLanguage.btnSearch }}
-    </button>
+    </button> -->
   </form>
 
   <!-- <mat-hint>Errors appear instantly!</mat-hint>
@@ -140,11 +164,14 @@
   </div>
 </div>
 
+<!--
 <div>
-  123
+
+
   <ng-container *ngIf="currentLanguagee$ | async as currentLanguagee">
     <div [innerHTML]="currentLanguagee"></div>
   </ng-container>
 
 </div>
+-->
 

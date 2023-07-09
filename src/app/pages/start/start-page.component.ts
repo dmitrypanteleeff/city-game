@@ -1,10 +1,12 @@
 import {
   AfterViewInit,
   Component,
+  ComponentRef,
   ElementRef,
   OnDestroy,
   OnInit,
-  ViewChild
+  ViewChild,
+  ViewEncapsulation
 } from '@angular/core';
 import * as L from 'leaflet';
 import * as MapConfig from 'src/app/shared/config/map.config';
@@ -53,16 +55,18 @@ import {
   handleMapMoveStart,
   handleMapMoveEnd
 } from 'src/app/shared/utils/handle-map.functions'
+import { CityInputComponent } from 'src/app/components/city-input/city-input.component';
 
 
 @Component({
   selector: 'app-start-page',
   templateUrl: './start-page.component.html',
-  styleUrls: ['./start-page.component.scss']
+  styleUrls: ['./start-page.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @ViewChild('inputCity') inputCity!: ElementRef;
+  @ViewChild(CityInputComponent) inputCity!: CityInputComponent;
   @ViewChild('timerElem') timerElem!: ElementRef;
   @ViewChild('scoreElem') scoreElem!: ElementRef;
 
@@ -96,6 +100,8 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   readonly patternEng: RegExp = patternEng;
   readonly patternRus: RegExp = patternRus;
+  // readonly patternEng: RegExp = /[^A-Za-z\`\'\ \-]/g;
+  // readonly patternRus: RegExp = /[^А-Яа-я\ё\Ё\'\ \-]/g;
   readonly ruAlphabet: string[] = ruAlphabet;
   readonly engAlphabet: string[] = engAlphabet;
 
@@ -455,17 +461,17 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   outputOneLetter(city: string, sum: string): Observable<any> {
-    let varOutputOneLetter$;
-    return varOutputOneLetter$ =
-      interval(150).pipe(
-        take(city.length),
-        map(x => {
-          if (x === 0) {
-            return sum = sum + city[x].toUpperCase();
-          }
-          return sum = sum + city[x];
-        }),
-        map(x => this.inputCity.nativeElement.value = x)
+
+    console.log(5555555, this.inputCity)
+    return interval(150).pipe(
+      take(city.length),
+      map(x => {
+        if (x === 0) {
+          return sum = sum + city[x].toUpperCase();
+        }
+        return sum = sum + city[x];
+      }),
+      map(x => this.inputCity.value = x)
       )
   }
 
@@ -535,7 +541,22 @@ export class StartPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   validateCityName() {
-    this.inputCity.nativeElement.value = this.inputCity.nativeElement.value.replace(this.pattern, '');
+    //this.inputCity.nativeElement.value = this.inputCity.nativeElement.value.replace(this.pattern, '');
+  }
+
+  testRequest() {
+    console.log('hellooo 3213213')
+  }
+
+  usePattern(str: any): any {
+    console.log(111111111, encodeURIComponent(str))
+    return encodeURIComponent(str);
+  }
+
+  putCity(e: string): string {
+    console.log(44444, e);
+    this.city = e;
+    return this.city;
   }
 
   // onClick(e) {

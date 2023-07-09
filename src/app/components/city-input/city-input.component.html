@@ -1,0 +1,20 @@
+<div class="input" [class]="classInputWrapper">
+  <input [type]="type"
+    #inputElem
+    class="text input__value"
+    autocomplete="off"
+    required="true"
+    (input)="inputValue()"
+    [class]="classInputValue"
+    [name]="name"
+    [value]="value"
+    [(ngModel)]="value">
+  <span class="text input__placeholder" [class]="classInputPlaceHolder">{{ placeholder }}</span>
+</div>
+<div class="p-0 bg-red-200 text-red-500 rounded text-tip"
+  [hidden]="!flag">
+  <span>
+    {{ pageLanguage.textTip }}
+  </span>
+
+</div>

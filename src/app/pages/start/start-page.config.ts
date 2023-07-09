@@ -19,7 +19,8 @@ export const START_PAGE_ENG: any = {
   warningMessage5: `Game Over`,
   warningMessage6: `Your number of points is`,
   timerTitle: 'Timer',
-  scoreTitle: 'Score'
+  scoreTitle: 'Score',
+  textTip: 'Change the keyboard layout'
 }
 
 export const START_PAGE_RUS: any = {
@@ -42,6 +43,7 @@ export const START_PAGE_RUS: any = {
   warningMessage4: '- точно верно написали город?',
   warningMessage5: 'Игра завершена',
   warningMessage6: 'Ваше количество очков:',
-  timerTitle: 'Счётчик',
-  scoreTitle: 'Очки'
+  timerTitle: 'Таймер',
+  scoreTitle: 'Очки',
+  textTip: 'Измените раскладку'
 }

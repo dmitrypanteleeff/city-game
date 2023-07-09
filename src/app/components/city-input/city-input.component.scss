@@ -1,0 +1,88 @@
+.input {
+  position: relative;
+  width: 100%;
+
+  $height: 2.25rem;
+  $heightPlaceholder: 1.25rem;
+
+  &__value {
+      width: 100%;
+      height: $height;
+      background-color: #fff;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      border-bottom: 2px solid #673ab7;
+      font-size: 14px;
+      color: #673ab7;
+      transition: 500ms;
+      padding: 0 .25rem;
+
+      &:valid,
+      &:focus {
+          background-color: #fff;
+          outline: none;
+      }
+
+      &:valid ~ .input__placeholder,
+      &:focus ~ .input__placeholder {
+          font-size: .75rem;
+          transform: translateY(calc(0rem - $height/2 - .625rem)) translateX(0%);
+          color: #fff;
+          &::before {
+            z-index: -10;
+            width: 100%;
+            background-color: #673ab7;
+            transition:
+              background-color 500ms ease-out 0ms,
+              width 500ms ease-out 0;
+          }
+      }
+  }
+
+  &__placeholder {
+      height: $heightPlaceholder;
+      font-size: .875rem;
+      color: #673ab7;
+      background-color: transparent;
+      border-radius: 1.25rem;
+      padding: 0 .25rem;
+      transition: 500ms;
+      pointer-events: none;
+      position: absolute;
+      left: 0;
+      top: calc(0rem - $heightPlaceholder/2 + $height/2);
+      transform: translateY(0) translateX(0%);
+      z-index: 10;
+      // transition:
+      //       transform 500ms ease-out 0,
+      //       font-size 500ms ease-out 0,
+      //       background-color 500ms ease-out 0;
+      //       color 500ms ease-out 0;
+
+      &::before {
+        content: '';
+          position: absolute;
+          background-color: transparent;
+          //border-radius: .5rem;
+          left: 0;
+          width: 0%;
+          height: 100%;
+          //transition: 700ms;
+          z-index: -10;
+          // transition:
+          //   background-color 500ms ease-out 0,
+          //   width 500ms ease-out 0;
+
+      }
+  }
+}
+
+.text-tip {
+  position: absolute;
+  width: 100%;
+  span {
+    background-color: #fff;
+    color: red;
+  }
+}

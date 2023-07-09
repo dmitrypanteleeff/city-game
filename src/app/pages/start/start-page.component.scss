@@ -6,6 +6,11 @@
   position: absolute;
   top: 2rem;
   z-index: 400;
+  left: 1rem;
+  @media (min-width:575px) {
+    left: auto;
+  }
+
 }
 
 .disabledBtn a {
@@ -15,14 +20,20 @@
 }
 
 .info__wrapper {
+  width: 3.75rem;
   position: absolute;
-  top: .5rem;
-  left: .5rem;
+  top: 74%;
+  right: .5rem;
+  left: auto;
   z-index: 1000;
   background-color: rgba($color: #fff, $alpha: .7);
   padding: .5rem;
   border-radius: 5px;
   border: 3px solid rgba(34, 32, 32, .35);
+  @media (min-width:575px) {
+    top: .5rem;
+    left: .5rem;
+  }
 }
 
 .timer {
@@ -59,6 +70,17 @@
   &__btn-menu {
     z-index: 1000;
     position: absolute;
-    bottom: .5rem;
+    top: 90%;
   }
 }
+
+app-city-input {
+  .input.city-input-wrapper {
+    width: 6.875rem;
+
+    @media (min-width:575px) {
+      width: 100%;
+    }
+  }
+}
+
